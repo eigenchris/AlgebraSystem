@@ -43,9 +43,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constant.cs" />
+    <Compile Include="ConstantConversion.cs" />
+    <Compile Include="ConstantExpression.cs" />
+    <Compile Include="ConstantLookup.cs" />
+    <Compile Include="ConstantOverloaded.cs" />
+    <Compile Include="ConstantPrimitive.cs" />
+    <Compile Include="ConversionFuncs.cs" />
+    <Compile Include="Namespace.cs" />
+    <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SExpression.cs" />
+    <Compile Include="STree.cs" />
+    <Compile Include="SubsList.cs" />
+    <Compile Include="Term.cs" />
+    <Compile Include="TermApply.cs" />
+    <Compile Include="Test.cs" />
+    <Compile Include="TreeTransformation.cs" />
+    <Compile Include="TypeExpr.cs" />
+    <Compile Include="TypeSet.cs" />
+    <Compile Include="TypeTree.cs" />
+    <Compile Include="Variable.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
