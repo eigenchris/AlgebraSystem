@@ -22,7 +22,7 @@ namespace AlgebraSystemV4 {
 
         public TermApply(string name, Namespace ns) {
             this.value = name;
-            this.typeTree = ns.VariableLookup(name).typeExpr.DeepCopy();
+            this.typeTree = ns.VariableLookup(name).typeExpr.typeTree.DeepCopy();
             this.ns = ns;
         }
         public TermApply(TermApply l, TermApply r) {
@@ -43,7 +43,7 @@ namespace AlgebraSystemV4 {
             TermApply temp = new TermApply();
             temp.value = s;
             temp.ns = ns;
-            temp.typeTree = ns.VariableLookup(s).typeExpr.DeepCopy();
+            temp.typeTree = ns.VariableLookup(s).typeExpr.typeTree.DeepCopy();
             return temp;
         }
 
@@ -215,7 +215,7 @@ namespace AlgebraSystemV4 {
             foreach (var var in introducedVars) {
                 // Can't just do expressionNS.AddVariable here; that erases the particular type of evaluation constant to use
                 // I'm re-adding certain variables here (like AND, true); not idea but it works... $TODO
-                expressionNS.AddVariable(var, variableTypes[var]);
+                expressionNS.AddVariable(var, new TypeExpr(variableTypes[var]));
             }
 
             // Use STree and namespace to create expression node
@@ -274,7 +274,7 @@ namespace AlgebraSystemV4 {
 
                 // if it's a previously unseen variable symbol, but it exists in the namespace, look it up
                 if (!variableTypes.ContainsKey(v) && ns.ContainsVariable(v)) {
-                    TypeTree temp = ns.VariableLookup(sTree.value).typeExpr;
+                    TypeTree temp = ns.VariableLookup(sTree.value).typeExpr.typeTree;
                     temp = temp.AddPrime(introducedTypeVars);
                     introducedTypeVars.AddRange(temp.GetTypeVariables());
                     variableTypes.Add(v, temp);

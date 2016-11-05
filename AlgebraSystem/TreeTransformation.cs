@@ -51,7 +51,7 @@ namespace AlgebraSystemV4 {
             // ensure types match;
             Dictionary<string, TypeTree> typeSubs = new Dictionary<string, TypeTree>();
             foreach (var key in subs.Keys) {
-                typeSubs = TypeTree.Unify(this.ns.VariableLookup(key).typeExpr, t.ns.VariableLookup(subs[key].value).typeExpr, typeSubs);
+                typeSubs = TypeTree.Unify(this.ns.VariableLookup(key).typeExpr.typeTree, t.ns.VariableLookup(subs[key].value).typeExpr.typeTree, typeSubs);
                 if (typeSubs == null) return null;
             }
 

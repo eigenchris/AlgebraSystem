@@ -89,11 +89,11 @@ namespace AlgebraSystemV4 {
             return true;
         }
 
-        public bool AddVariable(string names, TypeTree typeTree) {
-            if (names == "" || typeTree == null || (typeTree.IsPrimitive() && typeTree.value=="")) return false;
+        public bool AddVariable(string names, TypeExpr typeExpr) {
+            if (names == "" || typeExpr.typeTree == null || (typeExpr.typeTree.IsPrimitive() && typeExpr.typeTree.value=="")) return false;
 
-            if (!typeTree.ValidateAgainstNamespace(this)) {
-                this.TypeTreeError(names, typeTree);
+            if (!typeExpr.typeTree.ValidateAgainstNamespace(this)) {
+                this.TypeTreeError(names, typeExpr.typeTree);
                 return false;
             }
 
@@ -104,27 +104,27 @@ namespace AlgebraSystemV4 {
                     this.NameError(name);
                     success = false;
                 }
-                this.variableLookup.Add(name, new Variable(name, typeTree, this, name));
+                this.variableLookup.Add(name, new Variable(name, typeExpr, this, name));
             }
 
             return success;
         }
         public bool AddVariable(string names, string typeString) {
-            TypeTree typeTree = new TypeTree(typeString);
-            return AddVariable(names, typeTree);
+            TypeExpr typeExpr = new TypeExpr(typeString);
+            return AddVariable(names, typeExpr);
         }
 
 
         // add primative constants
-        public bool AddConstantPrimitive(string names, TypeTree typeTree) {
-            if (names == "" || typeTree == null || (typeTree.IsPrimitive() && typeTree.value == "")) return false;
+        public bool AddConstantPrimitive(string names, TypeExpr typeExpr) {
+            if (names == "" || typeExpr.typeTree == null || (typeExpr.typeTree.IsPrimitive() && typeExpr.typeTree.value == "")) return false;
 
-            if (!typeTree.ValidateAgainstNamespace(this)) {
-                this.TypeTreeError(names, typeTree);
+            if (!typeExpr.typeTree.ValidateAgainstNamespace(this)) {
+                this.TypeTreeError(names, typeExpr.typeTree);
                 return false;
             }
-            if(!typeTree.IsPrimitive()) {
-                Console.WriteLine("Cannot add ConstantPrimitive -- TypeTree is not primitive\n" + typeTree);
+            if(!typeExpr.typeTree.IsPrimitive()) {
+                Console.WriteLine("Cannot add ConstantPrimitive -- TypeTree is not primitive\n" + typeExpr.typeTree);
                 return false;
             }
 
@@ -135,14 +135,14 @@ namespace AlgebraSystemV4 {
                     this.NameError(name);
                     success = false;
                 }
-                this.variableLookup.Add(name, new ConstantPrimitive(name, typeTree, this, name));
+                this.variableLookup.Add(name, new ConstantPrimitive(name, typeExpr, this, name));
             }
 
             return success;
         }
         public bool AddConstantPrimitive(string names, string typeName) {
-            TypeTree typeTree = new TypeTree(typeName);
-            return AddConstantPrimitive(names, typeTree);
+            TypeExpr typeExpr = new TypeExpr(typeName);
+            return AddConstantPrimitive(names, typeExpr);
         }
 
         // add lookup constant
@@ -152,13 +152,13 @@ namespace AlgebraSystemV4 {
                 return false;
             }
 
-            TypeTree typeTree = ConstantLookup.ValidateDictionary(lookup,this);
-            if (typeTree == null) {
+            TypeExpr typeExpr = ConstantLookup.ValidateDictionary(lookup,this);
+            if (typeExpr == null) {
                 Console.WriteLine("Cannot add constant -- dictionary types are not valid.");
                 return false;
             }
 
-            this.variableLookup[name] = new ConstantLookup(name, typeTree, this, lookup);
+            this.variableLookup[name] = new ConstantLookup(name, typeExpr, this, lookup);
             return true;
         }
 
@@ -172,18 +172,18 @@ namespace AlgebraSystemV4 {
                 return false;
             }
 
-            TypeTree typeTree = new TypeTree(typeTreeString);
-            if (typeTree == null) {
+            TypeExpr exprTree = new TypeExpr(typeTreeString);
+            if (exprTree == null) {
                 Console.WriteLine("Cannot add constant -- typeTree is not valid.");
                 return false;
             }
-            bool valid = typeTree.ValidateAgainstNamespace(this);
+            bool valid = exprTree.typeTree.ValidateAgainstNamespace(this);
             if (!valid) {
                 Console.WriteLine("Cannot add constant -- typeTree is not valid.");
                 return false;
             }
 
-            this.variableLookup[name] = new ConstantConversion(name, typeTree, this, conversion);
+            this.variableLookup[name] = new ConstantConversion(name, exprTree, this, conversion);
             return true;
         }
 
@@ -201,7 +201,7 @@ namespace AlgebraSystemV4 {
             List<string> usedTypeVars = new List<string>();
             foreach(var var in boundVars) {
                 if (expression.ns.ContainsTypeLocal(var)) {
-                    usedTypeVars.Concat(expression.ns.VariableLookup(var).typeExpr.GetTypeVariables());
+                    usedTypeVars.Concat(expression.ns.VariableLookup(var).typeExpr.typeTree.GetTypeVariables());
                 }
             }
             // Get overall type tree
@@ -212,12 +212,13 @@ namespace AlgebraSystemV4 {
                     string typeVar = TypeTree.AddPrime("a", usedTypeVars);
                     expression.ns.AddVariable(var, typeVar);
                 }
-                treeList.Add(expression.ns.VariableLookup(var).typeExpr);
+                treeList.Add(expression.ns.VariableLookup(var).typeExpr.typeTree);
             }
             treeList.Add(expression.typeTree);
             TypeTree typeTree = TypeTree.TypeTreeFromTreeList(treeList);
+            TypeExpr typeExpr = new TypeExpr(typeTree);
 
-            this.variableLookup.Add(name, new ConstantExpression(name, typeTree, this, expression, boundVars));
+            this.variableLookup.Add(name, new ConstantExpression(name, typeExpr, this, expression, boundVars));
 
             return true;
         }
@@ -239,7 +240,7 @@ namespace AlgebraSystemV4 {
             if (variable == null || this.variableLookup.ContainsKey(name)) return false;
             
             // make sure all relevant TypeSets exist so we can refer to them
-            List<string> typeConstants = variable.typeExpr.GetTypeConstants();
+            List<string> typeConstants = variable.typeExpr.typeTree.GetTypeConstants();
             foreach(var typeConst in typeConstants) {
                 if(!this.typeLookup.ContainsKey(typeConst)) {
                     this.AddTypeSet(typeConst);

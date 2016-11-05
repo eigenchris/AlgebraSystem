@@ -15,7 +15,7 @@ namespace AlgebraSystemV4 {
 
         public Term(string name, Namespace ns) {
             this.value = name;
-            this.typeTree = ns.VariableLookup(name).typeExpr.DeepCopy();
+            this.typeTree = ns.VariableLookup(name).typeExpr.typeTree.DeepCopy();
             this.ns = ns;
             this.children = new List<Term>();
         }
@@ -31,7 +31,7 @@ namespace AlgebraSystemV4 {
         public static Term MakePrimitiveTree(string s, Namespace ns) {
             Term temp = new Term(ns);
             temp.value = s;
-            temp.typeTree = ns.VariableLookup(s).typeExpr.DeepCopy();
+            temp.typeTree = ns.VariableLookup(s).typeExpr.typeTree.DeepCopy();
             temp.children = new List<Term>();
             return temp;
         }
