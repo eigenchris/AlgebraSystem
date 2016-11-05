@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace AlgebraSystemV4 {
+namespace AlgebraSystem {
     public class TypeSet {
         public string name { get; }
 

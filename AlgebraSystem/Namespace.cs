@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using System.Text.RegularExpressions;
 
-namespace AlgebraSystemV4 {
+namespace AlgebraSystem {
     public class Namespace {
         public string name;
         public static int namespaceIdx = 0;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AlgebraSystemV4 {
+namespace AlgebraSystem {
     public class ConstantPrimitive : Constant {
 
         public ConstantPrimitive(string name, TypeExpr typeExpr, Namespace ns, string printString) :

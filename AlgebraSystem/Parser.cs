@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AlgebraSystemV4 {
+namespace AlgebraSystem {
     class Parser {
 
         static string specials = @"!@#$%^&*-+=<>/\:~|?";

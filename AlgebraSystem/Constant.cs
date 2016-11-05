@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AlgebraSystemV4 {
+namespace AlgebraSystem {
     public abstract class Constant : Variable {
         public string datum { get; } // the actual value of the variable
         public int expectedNumberOfArgs;

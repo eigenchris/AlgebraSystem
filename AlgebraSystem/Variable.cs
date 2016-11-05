@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AlgebraSystemV4 {
+namespace AlgebraSystem {
     public class Variable {
         public enum ComputationType { variable, primative, conversion, lookup, expression };
 

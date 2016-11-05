@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace AlgebraSystemV4 {
+namespace AlgebraSystem {
     public class TreeTransformation {
         private Term t1;
         private Term t2;
