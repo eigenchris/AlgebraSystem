@@ -18,10 +18,10 @@ namespace AlgebraSystem {
             set { _value = value; left = null; right = null; }
         }
         
-        public TypeTree(string s, string boundVars = "") {
+        public TypeTree(string s, string boundVars = null) {
             TypeTree temp = Parser.ParseTypeTree(s);
             if (temp == null) { // parseing failed
-                this.value = string.Empty;
+                this.value = null;
             } else if (temp.IsPrimitive()) {
                 this.value = temp.value;
             } else {
@@ -33,7 +33,7 @@ namespace AlgebraSystem {
             this.SetChildren(l.DeepCopy(), r.DeepCopy());
         }
         public TypeTree() {
-            this.value = string.Empty;
+            this.value = null;
         }
         public static TypeTree MakePrimitiveTree(string s) {
             TypeTree temp = new TypeTree();
@@ -43,7 +43,7 @@ namespace AlgebraSystem {
 
         // Getting is normal, but setting should set the string to empty
         public void SetChildren(TypeTree l, TypeTree r) {
-            this.value = string.Empty;
+            this.value = null;
             this.left = l;
             this.right = r;
         }
@@ -306,7 +306,7 @@ namespace AlgebraSystem {
         }
 
         public static bool IsTypeVariable(string name) {
-            if (name == "") return false;
+            if (string.IsNullOrEmpty(name)) return false;
             return name[0] == char.ToLower(name[0]);
         }
 
@@ -351,7 +351,19 @@ namespace AlgebraSystem {
             if (this.IsPrimitive()) {
                 return this.value;
             } else {
-                return "(" + this.left.ToString() + " -> " + this.right.ToString() + ")";
+                string symbol = this.left?.left?.value;
+                if (symbol == "->" || symbol == "," || symbol == "|") {
+                    if(this.left.right.value==null) {
+                        return $"({this.left.right}) {symbol} {this.right}";
+                    }
+                    return $"{this.left.right} {symbol} {this.right}";
+                }
+                else if (this.right.value == null) {
+                    return $"{this.left} ({this.right})";
+                }
+                else {
+                    return $"{this.left} {this.right}";
+                }                
             }
         }
 

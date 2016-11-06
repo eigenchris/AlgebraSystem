@@ -12,7 +12,7 @@ namespace AlgebraSystem {
         // ----- Helper Functions -----------------------------
         // comma-separated string "a,b,c" to List<string>
         public static List<string> CssToList(string s) {
-            if (s == "") return new List<string>();
+            if (string.IsNullOrEmpty(s)) return new List<string>();
             return s.Split(new char[] { ',' }).ToList();
         }
 
@@ -73,7 +73,6 @@ namespace AlgebraSystem {
                     length++;
                 }
             }
-
             return length;
         }
 

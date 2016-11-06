@@ -56,17 +56,74 @@ namespace UnitTestProject1 {
 
         [TestMethod]
         public void SExpressionTest_ParseSExpressionSuccessTest() {
-            string success0 = "  x  ";
-            string success1 = "(  xyz  )";
-            string success2 = "f a b c";
-            string success3 = "((f) ((a) ((b) (c))))";
-            string success4 = " ( f  x )    ( g   y  )  z  ";
+            string[] testStrings = new string[] {
+                "x",
+                "  x  ",
+                "  xyz  ",
+                "f a b c",
+                "((f) ((a) ((b) (c))))",
+                " ( f  x )    ( g   y  )  z  "
+            };
 
-            var sexp0 = SExpression.ParseSExpression(success0);
-            var sexp1 = SExpression.ParseSExpression(success1);
-            var sexp2 = SExpression.ParseSExpression(success2);
-            var sexp3 = SExpression.ParseSExpression(success3);
-            var sexp4 = SExpression.ParseSExpression(success4);
+            foreach(var s in testStrings) {
+                var sExp = SExpression.ParseSExpression(s);
+            }
+        }
+
+        [TestMethod]
+        public void SExpressionTest_TypeTreeSuccessTest() {
+            string[] basicTestStrings = new string[] {
+                "x",
+                "  x  ",
+                "  xyz  ",
+                "f a b c",
+                "((f) ((a) ((b) (c))))",
+                " ( f  x )    ( g   y  )  z  ",
+                "a123xyz456uvw",
+            };
+
+            string[] basicResultStrings = new string[] {
+                "x",
+                "x",
+                "xyz",
+                "f a b c",
+                "f (a (b c))",
+                "f x (g y) z",
+                "a123xyz456uvw",
+            };
+
+            for (int i = 0; i < basicTestStrings.Length; i++) {
+                var tTree = SExpression.ParseTypeTree(basicTestStrings[i]);
+                Assert.AreEqual(basicResultStrings[i], tTree.ToString());
+            }
+
+
+            string[] treeTestStrings = new string[] {
+                "a1 -> b1",
+                "a1 | b1",
+                "a1, b1",
+                "(a1 -> b1) -> c1",
+                "a1 -> b1 -> c1 -> d1 -> e1",
+                "-> a1 b1",
+                "a -> ((b,c) -> d | e)",
+                "f a b c -> g x y z"
+            };
+
+            string[] treeResultStrings = new string[] {
+                "a1 -> b1",
+                "a1 | b1",
+                "a1 , b1",
+                "(a1 -> b1) -> c1",
+                "a1 -> b1 -> c1 -> d1 -> e1",
+                "a1 -> b1",
+                "a -> (b , c) -> d | e",
+                "f a b (c -> g x y z)",
+            };
+
+            for (int i=0; i<treeTestStrings.Length; i++) {
+                var tTree = SExpression.ParseTypeTree(treeTestStrings[i]);
+                Assert.AreEqual(treeResultStrings[i],tTree.ToString());
+            }
         }
 
     }
