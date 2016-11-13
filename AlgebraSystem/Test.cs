@@ -88,7 +88,7 @@ namespace AlgebraSystem {
 
         public static void SExpressionParser2() {
             string s1 = "((f x)) (((y)) (g z)) w";
-            STree s = Parser.ParseSExpression(s1);
+            STree s = Parser.ParseSTree(s1);
             Console.WriteLine(s);
             Console.WriteLine();
         }

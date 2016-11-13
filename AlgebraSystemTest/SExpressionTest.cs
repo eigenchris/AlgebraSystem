@@ -20,14 +20,14 @@ namespace UnitTestProject1 {
             string fail3 = "()(()))";
 
             // Act & Assert
-            Assert.IsTrue(SExpression.CheckBalancedParens(success1));
-            Assert.IsTrue(SExpression.CheckBalancedParens(success2));
-            Assert.IsTrue(SExpression.CheckBalancedParens(success3));
-            Assert.IsTrue(SExpression.CheckBalancedParens(success4));
+            Assert.IsTrue(Parser.CheckBalancedParens(success1));
+            Assert.IsTrue(Parser.CheckBalancedParens(success2));
+            Assert.IsTrue(Parser.CheckBalancedParens(success3));
+            Assert.IsTrue(Parser.CheckBalancedParens(success4));
 
-            Assert.IsFalse(SExpression.CheckBalancedParens(fail1));
-            Assert.IsFalse(SExpression.CheckBalancedParens(fail2));
-            Assert.IsFalse(SExpression.CheckBalancedParens(fail3));            
+            Assert.IsFalse(Parser.CheckBalancedParens(fail1));
+            Assert.IsFalse(Parser.CheckBalancedParens(fail2));
+            Assert.IsFalse(Parser.CheckBalancedParens(fail3));            
         }
 
         [TestMethod]
@@ -45,13 +45,13 @@ namespace UnitTestProject1 {
             string fail3 = "()(()";
 
             // Act & Assert
-            Assert.AreEqual(end1,SExpression.GetIndexOfEndParen(success1,start1));
-            Assert.AreEqual(end2,SExpression.GetIndexOfEndParen(success2,start2));
-            Assert.AreEqual(end3,SExpression.GetIndexOfEndParen(success3,start3));
+            Assert.AreEqual(end1, Parser.GetIndexOfEndParen(success1,start1));
+            Assert.AreEqual(end2, Parser.GetIndexOfEndParen(success2,start2));
+            Assert.AreEqual(end3, Parser.GetIndexOfEndParen(success3,start3));
 
-            Assert.AreEqual(-1, SExpression.GetIndexOfEndParen(fail1));
-            Assert.AreEqual(-1, SExpression.GetIndexOfEndParen(fail2));
-            Assert.AreEqual(-1, SExpression.GetIndexOfEndParen(fail3));
+            Assert.AreEqual(-1, Parser.GetIndexOfEndParen(fail1));
+            Assert.AreEqual(-1, Parser.GetIndexOfEndParen(fail2));
+            Assert.AreEqual(-1, Parser.GetIndexOfEndParen(fail3));
         }
 
         [TestMethod]
@@ -66,7 +66,7 @@ namespace UnitTestProject1 {
             };
 
             foreach(var s in testStrings) {
-                var sExp = SExpression.ParseSExpression(s);
+                var sExp = Parser.ParseSExpression(s);
             }
         }
 
@@ -93,7 +93,7 @@ namespace UnitTestProject1 {
             };
 
             for (int i = 0; i < basicTestStrings.Length; i++) {
-                var tTree = SExpression.ParseTypeTree(basicTestStrings[i]);
+                var tTree = Parser.ParseTypeTree(basicTestStrings[i]);
                 Assert.AreEqual(basicResultStrings[i], tTree.ToString());
             }
 
@@ -121,7 +121,7 @@ namespace UnitTestProject1 {
             };
 
             for (int i=0; i<treeTestStrings.Length; i++) {
-                var tTree = SExpression.ParseTypeTree(treeTestStrings[i]);
+                var tTree = Parser.ParseTypeTree(treeTestStrings[i]);
                 Assert.AreEqual(treeResultStrings[i],tTree.ToString());
             }
         }

@@ -35,9 +35,9 @@ namespace UnitTestProject1 {
             // Arrange
             var ATree = TypeTree.MakePrimitiveTree("A");
             var BTree = TypeTree.MakePrimitiveTree("B");
-            var ABATree = SExpression.ParseTypeTree("A->B->A");
-            var AATree = SExpression.ParseTypeTree("A->A");
-            var AaTree = SExpression.ParseTypeTree("(A,a)");
+            var ABATree = Parser.ParseTypeTree("A->B->A");
+            var AATree = Parser.ParseTypeTree("A->A");
+            var AaTree = Parser.ParseTypeTree("(A,a)");
 
             var t1 = Parser.ParseTypeExpr("A->B->A");
             var subs1 = new Dictionary<string, TypeTree>();

@@ -11,10 +11,10 @@ namespace UnitTestProject1 {
         [TestMethod]
         public void TypeTreeTest_DeepEqualsTest() {
             // Arrange
-            var t1 = SExpression.ParseTypeTree("a -> (b , c) -> d");
-            var t2 = SExpression.ParseTypeTree("a -> (b | c) -> d");
-            var t3 = SExpression.ParseTypeTree("a -> (b , c) -> e");
-            var t4 = SExpression.ParseTypeTree("a -> (b , c)");
+            var t1 = Parser.ParseTypeTree("a -> (b , c) -> d");
+            var t2 = Parser.ParseTypeTree("a -> (b | c) -> d");
+            var t3 = Parser.ParseTypeTree("a -> (b , c) -> e");
+            var t4 = Parser.ParseTypeTree("a -> (b , c)");
 
             // Act & Assert
             Assert.IsTrue(t1.DeepEquals(t1));
@@ -33,10 +33,10 @@ namespace UnitTestProject1 {
         [TestMethod]
         public void TypeTreeTest_UnifyTest() {
             // Arrange
-            var t1 = SExpression.ParseTypeTree("a -> (b , c) -> d");
-            var t2 = SExpression.ParseTypeTree("a -> (b | c) -> d");
-            var t3 = SExpression.ParseTypeTree("a -> (b , c) -> e");
-            var t4 = SExpression.ParseTypeTree("a -> (b , c)");
+            var t1 = Parser.ParseTypeTree("a -> (b , c) -> d");
+            var t2 = Parser.ParseTypeTree("a -> (b | c) -> d");
+            var t3 = Parser.ParseTypeTree("a -> (b , c) -> e");
+            var t4 = Parser.ParseTypeTree("a -> (b , c)");
 
             // Act & Assert
             Assert.IsTrue(t1.DeepEquals(t1));
@@ -55,12 +55,12 @@ namespace UnitTestProject1 {
         [TestMethod]
         public void TypeTreeTest_SolveMappings() {
             // Arrange
-            var b = SExpression.ParseTypeTree("b");
-            var c = SExpression.ParseTypeTree("c");
-            var d = SExpression.ParseTypeTree("d");
-            var x = SExpression.ParseTypeTree("x");
-            var y = SExpression.ParseTypeTree("y");
-            var z = SExpression.ParseTypeTree("z");
+            var b = Parser.ParseTypeTree("b");
+            var c = Parser.ParseTypeTree("c");
+            var d = Parser.ParseTypeTree("d");
+            var x = Parser.ParseTypeTree("x");
+            var y = Parser.ParseTypeTree("y");
+            var z = Parser.ParseTypeTree("z");
             var subs = new Dictionary<string, TypeTree>();
             subs.Add("a", b);
             subs.Add("b", c);

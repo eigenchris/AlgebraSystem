@@ -67,7 +67,7 @@ namespace AlgebraSystem {
 
         // this assumes type vars in t1 and t2 don't overlap; they are unique
         public static Dictionary<string, TypeTree> Unify(TypeExpr t1, TypeExpr t2, Dictionary<string, TypeTree> subs = null) {
-            t2.AlphaConvertUnique(t2);
+            t2.AlphaConvertUnique(t1);
             return Unify(t1.typeTree, t2.typeTree, t1.boundTypeVars, t2.boundTypeVars, subs);
         }
 

@@ -18,7 +18,7 @@ namespace AlgebraSystem {
         }
 
         public STree(string s) {
-            STree temp = Parser.ParseSExpression(s);
+            STree temp = Parser.ParseSTree(s);
             if (temp == null) { // parseing failed
                 this.value = string.Empty;
             } else if (temp.IsLeaf()) {
