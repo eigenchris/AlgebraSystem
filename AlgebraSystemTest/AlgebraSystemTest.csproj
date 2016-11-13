@@ -50,6 +50,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="NamespaceTest.cs" />
     <Compile Include="TypeExprTest.cs" />
     <Compile Include="TypeTreeTest.cs" />
     <Compile Include="SExpressionTest.cs" />

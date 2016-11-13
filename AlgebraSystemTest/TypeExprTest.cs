@@ -31,7 +31,7 @@ namespace UnitTestProject1 {
         }
 
         [TestMethod]
-        public void TypeTreeTest_UnifyTestSuccesses() {
+        public void TypeExprTest_UnifyTestSuccesses() {
             // Arrange
             var ATree = TypeTree.MakePrimitiveTree("A");
             var BTree = TypeTree.MakePrimitiveTree("B");
@@ -100,7 +100,7 @@ namespace UnitTestProject1 {
 
 
         [TestMethod]
-        public void TypeTreeTest_UnifyTestFailures() {
+        public void TypeExprTest_UnifyTestFailures() {
             // Arrange
             var t1 = Parser.ParseTypeExpr("A->B->A");
             var t1c = Parser.ParseTypeExpr("A->B->C");
@@ -119,6 +119,52 @@ namespace UnitTestProject1 {
             var result3 = TypeExpr.Unify(t3a, t3b);
             Assert.IsNull(result3);
         }
+
+
+        [TestMethod]
+        public void TypeExprTest_UnifyAndSolve() {
+            // Arrange
+            var t1 = Parser.ParseTypeExpr("A->B->A");
+            var t2 = Parser.ParseTypeExpr("x.A->B->x");
+            var t3 = Parser.ParseTypeExpr("x.x");
+            var t4a = Parser.ParseTypeExpr("x,y.x->y->x");
+            var t4b = Parser.ParseTypeExpr("a.(A->A)->a->A->A");
+            var t5a = Parser.ParseTypeExpr("x.x,x");
+            var t5b = Parser.ParseTypeExpr("a,b.a,b");
+            var t6a = Parser.ParseTypeExpr("x.x->x");
+            var t6b = Parser.ParseTypeExpr("a,b.(A,a)->(A,b)");
+            var t7a = Parser.ParseTypeExpr("a,b.(A,a) | a | (A,b)");
+            var t7b = Parser.ParseTypeExpr("x,y.x|y|x");
+
+            // Act
+            var subs2 = TypeExpr.UnifyAndSolve(t1, t2);
+            var subs3 = TypeExpr.UnifyAndSolve(t1, t3);
+            var subs4 = TypeExpr.UnifyAndSolve(t4a, t4b);
+            var subs5 = TypeExpr.UnifyAndSolve(t5a, t5b);
+            var subs6 = TypeExpr.UnifyAndSolve(t6a, t6b);
+            var subs7 = TypeExpr.UnifyAndSolve(t7a, t7b);
+
+            var T2 = t2.Substitute(subs2);
+            var T3 = t3.Substitute(subs3);
+            var T4A = t4a.Substitute(subs4);
+            var T4B = t4b.Substitute(subs4);
+            var T5A = t5a.Substitute(subs5);
+            var T5B = t5b.Substitute(subs5);
+            var T6A = t6a.Substitute(subs6);
+            var T6B = t6b.Substitute(subs6);
+            var T7A = t7a.Substitute(subs7);
+            var T7B = t7b.Substitute(subs7);
+
+            // Assert
+            Assert.IsTrue(t1.DeepEquals(T2));
+            Assert.IsTrue(t1.DeepEquals(T3));
+            Assert.IsTrue(T4A.DeepEquals(T4B));
+            Assert.IsTrue(T5A.DeepEquals(T5B));
+            Assert.IsTrue(T6A.DeepEquals(T6B));
+            Assert.IsTrue(T7A.DeepEquals(T7B));
+        }
+
+
 
     }
 }

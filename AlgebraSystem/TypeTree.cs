@@ -78,37 +78,6 @@ namespace AlgebraSystem {
             return this.left.DeepEquals(t.left) && this.right.DeepEquals(t.right);
         }
 
-        // (Bool -> (Bool -> (Bool -> Bool))) will match (i -> j) with
-        //  i = Bool;   j = (Bool -> (Bool -> Bool))
-        // which is exactly how things work in Haskell
-        public static bool MatchPrototype(TypeTree prototype, TypeTree candidate, Dictionary<string, TypeTree> typeVarLookup) {
-            // if prototype node is a branch, confirm that candidate node is also a branch, and check for matches on the left and right sides
-            if (!prototype.IsPrimitive()) {
-                if (candidate.IsPrimitive()) {
-                    return false;
-                } else {
-                    return MatchPrototype(prototype.left, candidate.left, typeVarLookup)
-                        && MatchPrototype(prototype.right, candidate.right, typeVarLookup);
-                }
-            } else { // otherwise, if we meet a leaf node in the prototype
-                // if the value is a type variable...
-                //if (ns.typeVariables.Contains(prototype.value)) {
-                if (TypeTree.IsTypeVariable(prototype.value)) {
-                    // if it already has been logged in the typeVarLookup, confirm it equals the candidate
-                    //  .DeepEquals() is fine, since, even if the candidate contains more type variables, they should
-                    //  be the same throughout the tree
-                    if (typeVarLookup.ContainsKey(prototype.value)) {
-                        return typeVarLookup[prototype.value].DeepEquals(candidate);
-                    } else { // otherwise, bind the candidate tree to the type variable
-                        typeVarLookup.Add(prototype.value, candidate.DeepCopy());
-                        return true;
-                    }
-                } else { // if the value is NOT a type variable, confirm it equals teh candidate value
-                    return prototype.value == candidate.value;
-                }
-            }
-        }
-
 
         // ----- Unification -------------------------------
         public static Dictionary<string, TypeTree> UnifyAndSolve(TypeTree t1, TypeTree t2, Dictionary<string, TypeTree> subs = null) {
@@ -304,7 +273,12 @@ namespace AlgebraSystem {
 
         public static bool IsTypeVariable(string name) {
             if (string.IsNullOrEmpty(name)) return false;
-            return name[0] == char.ToLower(name[0]);
+            if (!char.IsLetter(name[0])) return false;
+            if(name[0] != char.ToLower(name[0])) return false;
+            foreach(var c in name) {
+                if (!char.IsLetterOrDigit(c)) return false;
+            }
+            return true;
         }
 
         // Get a list of all type variables in the tree

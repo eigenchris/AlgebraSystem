@@ -53,6 +53,17 @@ namespace AlgebraSystem {
             return this.typeTree.GetNumberOfInputs();
         }
 
+        // ----- Unification -------------------------------
+        public static Dictionary<string, TypeTree> UnifyAndSolve(TypeExpr t1, TypeExpr t2, Dictionary<string, TypeTree> subs = null) {
+            if (t1 == null || t2 == null) return null;
+            subs = subs ?? new Dictionary<string, TypeTree>();
+
+            subs = Unify(t1, t2, subs);
+            if (subs == null) return null;
+
+            TypeTree.SolveMappings(subs);
+            return subs;
+        }
 
         public static Dictionary<string, TypeTree> Unify(TypeExpr t1, TypeExpr t2, Dictionary<string, TypeTree> subs = null) {
             return Unify(t1.typeTree, t2.typeTree, t1.boundTypeVars, t2.boundTypeVars, subs);
@@ -88,6 +99,33 @@ namespace AlgebraSystem {
             }
             return subs;
         }
+
+
+
+        // ----- Substitutions ------------------------------------------
+        public TypeExpr Substitute(string subVar, TypeTree subTree) {
+            if(this.boundTypeVars.Contains(subVar)) {
+                var vars = new List<string>(this.boundTypeVars);
+                vars.Remove(subVar);
+                foreach (var v in subTree.GetTypeVariables()) {
+                    if(!vars.Contains(v)) vars.Add(v);
+                }
+                var tree = this.typeTree.Substitute(subVar, subTree);
+                return new TypeExpr(tree, vars);
+            } else {
+                return this.DeepCopy();
+            }
+        }
+
+        public TypeExpr Substitute(Dictionary<string, TypeTree> subs) {
+            if (subs == null) return null;
+            var tempTypeExpr = this.DeepCopy();
+            foreach(var v in subs.Keys) {
+                tempTypeExpr = tempTypeExpr.Substitute(v,subs[v]);
+            }
+            return tempTypeExpr;
+        }
+
 
     }
 }
