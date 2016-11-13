@@ -65,7 +65,9 @@ namespace AlgebraSystem {
             return subs;
         }
 
+        // this assumes type vars in t1 and t2 don't overlap; they are unique
         public static Dictionary<string, TypeTree> Unify(TypeExpr t1, TypeExpr t2, Dictionary<string, TypeTree> subs = null) {
+            t2.AlphaConvertUnique(t2);
             return Unify(t1.typeTree, t2.typeTree, t1.boundTypeVars, t2.boundTypeVars, subs);
         }
 
@@ -125,6 +127,39 @@ namespace AlgebraSystem {
             }
             return tempTypeExpr;
         }
+
+        // Given "this" and another tree, rename type vars in "this" tree so they don't conflict with those in the input parameter
+        public void AlphaConvertUnique(TypeExpr tree) {
+            foreach (var v in tree.boundTypeVars) {
+                int idx = this.boundTypeVars.IndexOf(v);
+                if (idx!=-1) {
+                    string newVar = v + "'";
+                    while(this.boundTypeVars.Contains(newVar) || tree.boundTypeVars.Contains(newVar)) {
+                        newVar += "'";
+                    }
+                    this.boundTypeVars[idx] = newVar;
+                    this.typeTree.ReplaceName(v, newVar);
+                }
+            }
+        }
+
+
+        // ----- Parsing and conversion To/From other datatypes ---------
+        // display a TypeTree as (Bool -> (Bool -> Bool)), for example
+        public override string ToString() {
+            string prefix = "";
+            int N = this.boundTypeVars.Count;
+            if (N>0) {
+                prefix += "Forall";
+                for(int i=0; i<N; i++) {
+                    prefix += " " + this.boundTypeVars[i];
+                    if (i < N - 1) prefix += ",";
+                }
+                prefix += " . ";
+            }
+            return prefix + this.typeTree;
+        }
+
 
 
     }

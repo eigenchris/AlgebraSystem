@@ -98,6 +98,20 @@ namespace UnitTestProject1 {
             Assert.IsTrue(result7["b"].DeepEquals(TypeTree.MakePrimitiveTree("y")));
         }
 
+        [TestMethod]
+        public void TypeExprTest_UnifySameVars() {
+            // Arrange
+            var t1a = Parser.ParseTypeExpr("x.A->x");
+            var t1b = Parser.ParseTypeExpr("x.x->B");
+
+            // Act & Assert
+            var result1 = TypeExpr.Unify(t1a, t1b);
+            Assert.AreEqual(result1.Count,2);
+            Assert.IsTrue(result1["x"].DeepEquals(TypeTree.MakePrimitiveTree("B")));
+            Assert.IsTrue(result1["x'"].DeepEquals(TypeTree.MakePrimitiveTree("A")));
+        }
+
+
 
         [TestMethod]
         public void TypeExprTest_UnifyTestFailures() {
