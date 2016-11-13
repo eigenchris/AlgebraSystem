@@ -14,7 +14,7 @@ namespace AlgebraSystem {
             return false;
         }
 
-        public void AddPair(string s, TypeTree t) {
+        public void Add(string s, TypeTree t) {
             this.Add(new Tuple<string, TypeTree>(s, t));
         }
     }

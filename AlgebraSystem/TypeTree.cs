@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 namespace AlgebraSystem {
     public class TypeTree {
 
-        public List<string> boundTypeVars;
-
         private TypeTree left;
         private TypeTree right;
         private string _value;
@@ -18,7 +16,7 @@ namespace AlgebraSystem {
             set { _value = value; left = null; right = null; }
         }
         
-        public TypeTree(string s, string boundVars = null) {
+        public TypeTree(string s) {
             TypeTree temp = Parser.ParseTypeTree(s);
             if (temp == null) { // parseing failed
                 this.value = null;
@@ -27,7 +25,6 @@ namespace AlgebraSystem {
             } else {
                 this.SetChildren(temp.left,temp.right);
             }
-            this.boundTypeVars = Parser.CssToList(boundVars);
         }
         public TypeTree(TypeTree l, TypeTree r) {
             this.SetChildren(l.DeepCopy(), r.DeepCopy());

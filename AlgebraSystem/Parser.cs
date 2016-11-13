@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace AlgebraSystem {
-    class Parser {
+    public class Parser {
 
         static string specials = @"!@#$%^&*-+=<>/\:~|?";
 
@@ -262,7 +262,27 @@ namespace AlgebraSystem {
 
 
 
+        public static TypeExpr ParseTypeExpr(string input) {
+            if (string.IsNullOrEmpty(input)) throw new Exception("Cannot parse: null or empty string.");
+            string[] segments = input.Split('.');
+            if (segments.Length > 2) throw new Exception("Type expression may only have one '.' character.");
 
+            string treeString;
+            List<string> boundTypeVars;
+            if (segments.Length == 2) {
+                boundTypeVars = CssToList(segments[0]);
+                foreach(var v in boundTypeVars) {
+                    if (!TypeTree.IsTypeVariable(v)) throw new Exception("The following bound type varaible must start with lower case: " + v);
+                }
+                treeString = segments[1];
+            } else {
+                boundTypeVars = new List<string>();
+                treeString = segments[0];
+            }
+            TypeTree tree = SExpression.ParseTypeTree(treeString);
+
+            return new TypeExpr(tree, boundTypeVars);
+        }
 
 
     }
