@@ -90,7 +90,7 @@ namespace AlgebraSystem {
         }
 
         public bool AddVariable(string names, TypeExpr typeExpr) {
-            if (names == "" || typeExpr.typeTree == null || (typeExpr.typeTree.IsPrimitive() && typeExpr.typeTree.value=="")) return false;
+            if (names == "" || typeExpr.typeTree == null || (typeExpr.typeTree.IsLeaf() && typeExpr.typeTree.value=="")) return false;
 
             if (!typeExpr.typeTree.ValidateAgainstNamespace(this)) {
                 this.TypeTreeError(names, typeExpr.typeTree);
@@ -117,13 +117,13 @@ namespace AlgebraSystem {
 
         // add primative constants
         public bool AddConstantPrimitive(string names, TypeExpr typeExpr) {
-            if (names == "" || typeExpr.typeTree == null || (typeExpr.typeTree.IsPrimitive() && typeExpr.typeTree.value == "")) return false;
+            if (names == "" || typeExpr.typeTree == null || (typeExpr.typeTree.IsLeaf() && typeExpr.typeTree.value == "")) return false;
 
             if (!typeExpr.typeTree.ValidateAgainstNamespace(this)) {
                 this.TypeTreeError(names, typeExpr.typeTree);
                 return false;
             }
-            if(!typeExpr.typeTree.IsPrimitive()) {
+            if(!typeExpr.typeTree.IsLeaf()) {
                 Console.WriteLine("Cannot add ConstantPrimitive -- TypeTree is not primitive\n" + typeExpr.typeTree);
                 return false;
             }

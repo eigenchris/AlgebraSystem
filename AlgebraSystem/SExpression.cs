@@ -21,7 +21,28 @@ namespace AlgebraSystem {
             this.left = left;
             this.right = right;
         }
+        public static SExpression MakePrimitiveTree(string s) {
+            return new SExpression(s);
+        }
 
+        public SExpression GetLeft() { return this.left; }
+        public SExpression GetRight() { return this.right; }
+
+
+        public bool IsLeaf() {
+            return (this.left == null);
+        }
+
+        // ----- Copying and Equals/Matching ------------------
+        public SExpression DeepCopy() {
+            if (this.IsLeaf()) {
+                return SExpression.MakePrimitiveTree(this.value);
+            } else {
+                return new SExpression(this.left, this.right);
+            }
+        }
+
+        // ----- Parsing and conversion To/From other datatypes ---------
         public override string ToString() {
             if (this.value != null) return this.value;
             if (this.left.value==null) {

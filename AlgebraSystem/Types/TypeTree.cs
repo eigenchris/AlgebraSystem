@@ -20,7 +20,7 @@ namespace AlgebraSystem {
             TypeTree temp = Parser.ParseTypeTree(s);
             if (temp == null) { // parseing failed
                 this.value = null;
-            } else if (temp.IsPrimitive()) {
+            } else if (temp.IsLeaf()) {
                 this.value = temp.value;
             } else {
                 this.SetChildren(temp.left,temp.right);
@@ -47,10 +47,21 @@ namespace AlgebraSystem {
         public TypeTree GetLeft() { return this.left; }
         public TypeTree GetRight() { return this.right; }
 
+        public TypeTree(TypeTree l, TypeTree r, TypeConstructor c) {
+            string cstring;
+            if (c == TypeConstructor.Function) cstring = "->";
+            else if (c == TypeConstructor.Sum) cstring = "|";
+            else cstring = ",";
+            TypeTree ctree = TypeTree.MakePrimitiveTree(cstring);
+
+            TypeTree temp = new TypeTree(ctree, l);
+            this.SetChildren(temp, r);
+        }
+
 
         // ----- Copying and Equals/Matching ------------------
         public TypeTree DeepCopy() {
-            if(this.IsPrimitive()) {
+            if(this.IsLeaf()) {
                 return TypeTree.MakePrimitiveTree(this.value);
             } else {
                 return new TypeTree(this.left, this.right);
@@ -95,22 +106,22 @@ namespace AlgebraSystem {
         public static Dictionary<string, TypeTree> Unify(TypeTree t1, TypeTree t2, Dictionary<string, TypeTree> subs = null) {
             subs = subs ?? new Dictionary<string, TypeTree>();
 
-            if (!t1.IsPrimitive() && !t2.IsPrimitive()) {
+            if (!t1.IsLeaf() && !t2.IsLeaf()) {
                 var success1 = Unify(t1.GetLeft(), t2.GetLeft(), subs);
                 if (success1 == null) return null;
                 var success2 = Unify(t1.GetRight(), t2.GetRight(), subs);
                 if (success2 == null) return null;
-            } else if (t1.IsPrimitive() && TypeTree.IsTypeVariable(t1.value)) {
+            } else if (t1.IsLeaf() && TypeTree.IsTypeVariable(t1.value)) {
                 if(!subs.ContainsKey(t1.value)) {
                     subs.Add(t1.value, t2.DeepCopy());
-                } else if(t2.IsPrimitive() && t1.value != t2.value) { // don't map a variable to itself
+                } else if(t2.IsLeaf() && t1.value != t2.value) { // don't map a variable to itself
                     var success = Unify(subs[t1.value], t2, subs);   // If a type var matches two different subtrees, unify them
                     if (success == null) return null;
                 }
-            } else if (t2.IsPrimitive() && TypeTree.IsTypeVariable(t2.value)) {
+            } else if (t2.IsLeaf() && TypeTree.IsTypeVariable(t2.value)) {
                 if (!subs.ContainsKey(t2.value)) {
                     subs.Add(t2.value, t1.DeepCopy());
-                } else if (t1.IsPrimitive() && t2.value != t1.value) { // don't map a variable to itself
+                } else if (t1.IsLeaf() && t2.value != t1.value) { // don't map a variable to itself
                     var success = Unify(subs[t2.value], t1, subs);   // If a type var matches two different subtrees, unify them
                     if (success == null) return null;
                 }
@@ -136,7 +147,7 @@ namespace AlgebraSystem {
             }
             // remove loops
             foreach(var key in subs.Keys.ToList()) {
-                if(subs[key].IsPrimitive() && key==subs[key].value) {
+                if(subs[key].IsLeaf() && key==subs[key].value) {
                     subs.Remove(key);
                 }
             }
@@ -144,7 +155,7 @@ namespace AlgebraSystem {
 
         // ----- Basic Tree Operations ----------------------------------
         // does the tree have zero children? (no left child should mean no right child)
-        public bool IsPrimitive() {
+        public bool IsLeaf() {
             return (this.left == null);
         }
 
@@ -159,7 +170,7 @@ namespace AlgebraSystem {
         }
 
         public TypeTree PopInput() {
-            if (this.IsPrimitive()) {
+            if (this.IsLeaf()) {
                 return null;
             } else {
                 return this.right.DeepCopy();
@@ -168,14 +179,14 @@ namespace AlgebraSystem {
 
         public TypeTree PopOutput() {
             TypeTree returnTree = this.DeepCopy();
-            if (returnTree.IsPrimitive()) {
+            if (returnTree.IsLeaf()) {
                 return null;
-            } else if (returnTree.right.IsPrimitive()) {
+            } else if (returnTree.right.IsLeaf()) {
                 return returnTree.left;
             } else {
                 TypeTree tempTree1 = returnTree;
                 TypeTree tempTree2 = returnTree.right;
-                while (!tempTree2.right.IsPrimitive()) {
+                while (!tempTree2.right.IsLeaf()) {
                     tempTree1 = tempTree1.right;
                     tempTree2 = tempTree2.right;
                 }
@@ -186,7 +197,7 @@ namespace AlgebraSystem {
 
         // ----- Substitutions ------------------------------------------
         public TypeTree Substitute(string subVar, TypeTree subTree) {
-            if (this.IsPrimitive()) {
+            if (this.IsLeaf()) {
                 if (this.value == subVar) {
                     return subTree.DeepCopy();
                 } else {
@@ -200,7 +211,7 @@ namespace AlgebraSystem {
         }
         public TypeTree Substitute(Dictionary<string,TypeTree> subs) {
             if (subs == null) return null;
-            if(this.IsPrimitive()) {
+            if(this.IsLeaf()) {
                 if (subs.ContainsKey(this.value)) return subs[this.value].DeepCopy();
                 else return this.DeepCopy();
             } else {
@@ -246,7 +257,7 @@ namespace AlgebraSystem {
         }
 
         public void ReplaceName(string oldName, string newName) {
-            if (this.IsPrimitive()) {
+            if (this.IsLeaf()) {
                 if (this.value == oldName) {
                     this.value = newName;
                 }
@@ -264,7 +275,7 @@ namespace AlgebraSystem {
 
         // ----- Namespace stuff ----------------------------------------
         public bool ValidateAgainstNamespace(Namespace ns) {
-            if (this.IsPrimitive()) {
+            if (this.IsLeaf()) {
                 return TypeTree.IsTypeVariable(this.value) || (ns.TypeLookup(this.value) != null);                    
             } else {
                 return this.left.ValidateAgainstNamespace(ns) && this.right.ValidateAgainstNamespace(ns);
@@ -285,7 +296,7 @@ namespace AlgebraSystem {
         public List<string> GetTypeVariables(List<string> vars = null) {
             vars = vars ?? new List<string>();
 
-            if(this.IsPrimitive()) {
+            if(this.IsLeaf()) {
                 string val = this.value;
                 if (TypeTree.IsTypeVariable(val) && !vars.Contains(val)) {
                     vars.Add(val);
@@ -300,7 +311,7 @@ namespace AlgebraSystem {
         public List<string> GetTypeConstants(List<string> vars = null) {
             vars = vars ?? new List<string>();
 
-            if (this.IsPrimitive()) {
+            if (this.IsLeaf()) {
                 string val = this.value;
                 if (!TypeTree.IsTypeVariable(val) && !vars.Contains(val)) {
                     vars.Add(val);
@@ -319,7 +330,7 @@ namespace AlgebraSystem {
         // ----- Parsing and conversion To/From other datatypes ---------
         // display a TypeTree as (Bool -> (Bool -> Bool)), for example
         public override string ToString() {
-            if (this.IsPrimitive()) {
+            if (this.IsLeaf()) {
                 return this.value;
             } else {
                 string symbol = this.left?.left?.value;

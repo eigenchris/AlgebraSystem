@@ -43,13 +43,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Constant.cs" />
-    <Compile Include="ConstantConversion.cs" />
-    <Compile Include="ConstantExpression.cs" />
-    <Compile Include="ConstantLookup.cs" />
-    <Compile Include="ConstantOverloaded.cs" />
-    <Compile Include="ConstantPrimitive.cs" />
-    <Compile Include="ConversionFuncs.cs" />
+    <Compile Include="TermExpr.cs" />
+    <Compile Include="TermNew.cs" />
+    <Compile Include="Types\TypeConstructor.cs" />
+    <Compile Include="Variables\Constant.cs" />
+    <Compile Include="Variables\ConstantConversion.cs" />
+    <Compile Include="Variables\ConstantExpression.cs" />
+    <Compile Include="Variables\ConstantLookup.cs" />
+    <Compile Include="Variables\ConstantOverloaded.cs" />
+    <Compile Include="Variables\ConstantPrimitive.cs" />
+    <Compile Include="Variables\ConversionFuncs.cs" />
     <Compile Include="Namespace.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
@@ -61,10 +64,10 @@
     <Compile Include="TermApply.cs" />
     <Compile Include="Test.cs" />
     <Compile Include="TreeTransformation.cs" />
-    <Compile Include="TypeExpr.cs" />
-    <Compile Include="TypeSet.cs" />
-    <Compile Include="TypeTree.cs" />
-    <Compile Include="Variable.cs" />
+    <Compile Include="Types\TypeExpr.cs" />
+    <Compile Include="Types\TypeSet.cs" />
+    <Compile Include="Types\TypeTree.cs" />
+    <Compile Include="Variables\Variable.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

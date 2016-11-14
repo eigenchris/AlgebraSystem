@@ -131,7 +131,7 @@ namespace AlgebraSystem {
 
         public bool Apply(Term childTerm) {
             // make sure that an input slot exists
-            if (this.typeTree.IsPrimitive()) {
+            if (this.typeTree.IsLeaf()) {
                 Console.WriteLine("Cannot add child: no argument slots remaining!");
                 return false;
             }

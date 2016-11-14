@@ -143,7 +143,7 @@ namespace AlgebraSystem {
             // the type-checking and mechanical stuff is mostly implemented in SetChildren(), so this function is short
 
             // make sure that an input slot exists
-            if (this.typeTree.IsPrimitive()) {
+            if (this.typeTree.IsLeaf()) {
                 Console.WriteLine("Cannot add child: no argument slots remaining!");
                 return false;
             }
