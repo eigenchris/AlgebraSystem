@@ -27,6 +27,7 @@ namespace UnitTestProject1 {
             var n2 = TermNew.TypeInference(sexp2, gns);
             var n3 = TermNew.TypeInference(sexp3, gns);
 
+            Assert.Fail("example 3 doesn't work.")
 
 
             // Act & Assert

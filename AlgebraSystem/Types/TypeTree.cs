@@ -357,7 +357,8 @@ namespace AlgebraSystem {
             }
             TypeTree tree = treeList[treeList.Count - 1].DeepCopy();
             for (int i = treeList.Count - 2; i >= 0; i--) {
-                tree.SetChildren(treeList[i].DeepCopy(), tree.DeepCopy());
+                //tree.SetChildren(treeList[i].DeepCopy(), tree.DeepCopy());
+                tree = new TypeTree(treeList[i].DeepCopy(), tree.DeepCopy(), TypeConstructor.Function);
             }
             return tree;
         }
