@@ -45,8 +45,8 @@ namespace AlgebraSystem {
         // ----- Parsing and conversion To/From other datatypes ---------
         public override string ToString() {
             if (this.value != null) return this.value;
-            if (this.left.value==null) {
-                return "(" + this.left + ") " + this.right;
+            if (this.right.value==null) {
+                return  this.left + " (" + this.right + ")";
             }
             return this.left + " " + this.right;
         }

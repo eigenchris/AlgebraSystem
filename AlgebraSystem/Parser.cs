@@ -306,8 +306,9 @@ namespace AlgebraSystem {
 
 
         public static int Spaces(string input, int start = 0) {
+            if (start >= input.Length) return 0;
             int length = 0;
-            while (length < input.Length && char.IsWhiteSpace(input[start + length])) {
+            while (start + length < input.Length && char.IsWhiteSpace(input[start + length])) {
                 length++;
             }
             return length;
@@ -350,30 +351,34 @@ namespace AlgebraSystem {
             while (s[right] == ' ') right--;
             if (left > right) throw new Exception("Parentheses not balanced!");
 
-            SExpression sexp;
-            int afterEnd; // index after the leftmost sub-expression
-            if (s[left] == '(') { // case of a subexpression (...)
-                int end = GetIndexOfEndParen(s, left + 1);
-                sexp = ParseSExpressionRecur(s, left + 1, end - 1);
-                afterEnd = end + 1;
-            } else { // case of parsing a single identifier
-                int length = IdentifierOrOp(s, left);
-                string identifier = s.Substring(left, length);
-                sexp = new SExpression(identifier);
-                afterEnd = left + length;
-            }
+            SExpression sexpLeft = null;
+            SExpression sexpRight;
 
             // if we've reached the end of the subexpression, just return what we have
-            if (afterEnd > right) {
-                return sexp;
+            while (left <= right) {
+
+                int afterEnd; // index after the leftmost sub-expression
+                if (s[left] == '(') { // case of a subexpression (...)
+                    int end = GetIndexOfEndParen(s, left + 1);
+                    sexpRight = ParseSExpressionRecur(s, left + 1, end - 1);
+                    afterEnd = end + 1;
+                } else { // case of parsing a single identifier
+                    int length = IdentifierOrOp(s, left);
+                    string identifier = s.Substring(left, length);
+                    sexpRight = new SExpression(identifier);
+                    afterEnd = left + length;
+                }
+
+                if (sexpLeft == null) {
+                    sexpLeft = sexpRight;
+                } else {
+                    sexpLeft = new SExpression(sexpLeft, sexpRight);
+                }
+
+                left = afterEnd + Spaces(s, afterEnd);
             }
 
-            // otherwise, take what we have and make it the left child of a node
-            // and out the stuff we'll see in the future in the right child of that node
-            afterEnd += Spaces(s, afterEnd);
-            SExpression leftSubExp = sexp;
-            SExpression rightSubExp = ParseSExpressionRecur(s, afterEnd, right);
-            return new SExpression(leftSubExp, rightSubExp);
+            return sexpLeft;
         }
 
 
