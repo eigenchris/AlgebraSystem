@@ -53,6 +53,11 @@ namespace AlgebraSystem {
             return this.typeTree.GetNumberOfInputs();
         }
 
+        // ----- Instance of -------------------------------
+        public bool InstanceOf(TypeExpr generalTree) {
+            return this.typeTree.InstanceOf(generalTree.typeTree, generalTree.boundTypeVars);
+        }
+
         // ----- Unification -------------------------------
         public static Dictionary<string, TypeTree> UnifyAndSolve(TypeExpr t1, TypeExpr t2, Dictionary<string, TypeTree> subs = null) {
             if (t1 == null || t2 == null) return null;

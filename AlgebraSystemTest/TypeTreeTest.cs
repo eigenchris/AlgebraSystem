@@ -31,6 +31,28 @@ namespace UnitTestProject1 {
         }
 
         [TestMethod]
+        public void TypeTreeTest_InstanceOfTest() {
+            // Arrange
+            var t1a = Parser.ParseTypeExpr("a.a->a");
+            var t1b = Parser.ParseTypeExpr("b,c.b->c");
+
+            var t2a = Parser.ParseTypeExpr("a.(a->Bool)->Int->a->Bool");
+            var t2b = Parser.ParseTypeExpr("a,b.a->b->a");
+
+            // Act & Assert
+            Assert.IsTrue(t1a.InstanceOf(t1a));
+            Assert.IsTrue(t1a.InstanceOf(t1b));
+            Assert.IsFalse(t1b.InstanceOf(t1a));
+            Assert.IsTrue(t2a.InstanceOf(t2a));
+            Assert.IsTrue(t2a.InstanceOf(t2b));
+            Assert.IsFalse(t2b.InstanceOf(t2a));
+
+            Assert.IsTrue(t2a.InstanceOf(t1b));
+        }
+
+
+
+        [TestMethod]
         public void TypeTreeTest_UnifyTest() {
             // Arrange
             var t1 = Parser.ParseTypeTree("a -> (b , c) -> d");

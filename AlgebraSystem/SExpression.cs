@@ -42,6 +42,14 @@ namespace AlgebraSystem {
             }
         }
 
+        public bool DeepEquals(SExpression sexp) {
+            if (this.IsLeaf()) {
+                return this.value == sexp.value;
+            } else {
+                return this.left.DeepEquals(sexp.GetLeft()) && this.right.DeepEquals(sexp.GetRight());
+            }
+        }
+
         // ----- Parsing and conversion To/From other datatypes ---------
         public override string ToString() {
             if (this.value != null) return this.value;

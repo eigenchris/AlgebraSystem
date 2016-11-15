@@ -89,6 +89,27 @@ namespace AlgebraSystem {
             return this.left.DeepEquals(t.left) && this.right.DeepEquals(t.right);
         }
 
+        // ----- Instance of -------------------------------
+        public bool InstanceOf(TypeTree generalTree, List<string> boundVars, Dictionary<string, TypeTree> subs = null) {
+            subs = subs ?? new Dictionary<string, TypeTree>();
+
+            if (generalTree.IsLeaf()) {
+                var v = generalTree.value;
+                if (!boundVars.Contains(v)) return v == this.value;
+                if (!subs.ContainsKey(v)) {
+                    subs.Add(v, this);
+                    return true;
+                }
+                return this.DeepEquals(subs[v]);
+            }
+            if (this.IsLeaf()) return false;
+
+            bool leftSuccess = this.left.InstanceOf(generalTree.GetLeft(), boundVars, subs);
+            if (!leftSuccess) return false;
+            bool rightSuccess = this.right.InstanceOf(generalTree.GetRight(), boundVars, subs);
+            return rightSuccess;
+        }
+
 
         // ----- Unification -------------------------------
         public static Dictionary<string, TypeTree> UnifyAndSolve(TypeTree t1, TypeTree t2, Dictionary<string, TypeTree> subs = null) {

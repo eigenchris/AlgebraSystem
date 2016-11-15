@@ -15,7 +15,8 @@ namespace UnitTestProject1 {
             string s0 = "f (g x) y";
             string s1 = "f (AND x) (AND x y)";
             string s2 = "op (f x) (NOT y)";
-            string s3 = "op (AND x (NOT y)) (g (g (NOT q)))";
+            //string s3 = "op (AND x (NOT y)) (g (g (NOT q)))";
+            string s3 = "g (g (NOT q))";
 
             var sexp0 = Parser.ParseSExpression(s0);
             var sexp1 = Parser.ParseSExpression(s1);
@@ -27,7 +28,7 @@ namespace UnitTestProject1 {
             var n2 = TermNew.TypeInference(sexp2, gns);
             var n3 = TermNew.TypeInference(sexp3, gns);
 
-            Assert.Fail("example 3 doesn't work.")
+            Assert.Fail("example 3 doesn't work.");
 
 
             // Act & Assert

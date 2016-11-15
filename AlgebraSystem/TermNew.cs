@@ -165,6 +165,54 @@ namespace AlgebraSystem {
         }
 
 
+        // ----- New Type Inference Attempt -----------------------------
 
-    }
+        public static void GetVarTypes(SExpression sexp, Namespace ns, Dictionary<string, TypeTree> variableTypes, List<string> introducedTypeVars) {
+            if (!sexp.IsLeaf()) {
+                GetVarTypes(sexp.right, ns, variableTypes, introducedTypeVars);
+                GetVarTypes(sexp.left, ns, variableTypes, introducedTypeVars);
+            } else {
+                string v = sexp.value;
+                TypeTree t; 
+                if (variableTypes.ContainsKey(v)) {
+                } else if (ns.ContainsVariable(v)) {
+                    t = ns.VariableLookup(sexp.value).typeExpr.typeTree;
+                    variableTypes.Add(v, t);
+                } else {
+                    string eTypeVar = "e" + introducedTypeVars.Count;
+                    t = new TypeTree(eTypeVar);
+                    variableTypes.Add(v, t);
+                    introducedTypeVars.Add(eTypeVar);
+                }
+            }
+        }
+
+        public static TypeTree GetTypeEquations(SExpression sexp, Dictionary<string, TypeTree> variableTypes, Dictionary<string, TypeTree> typeEquations) {
+            return null;
+        }
+
+
+        /*
+        public static bool TypeInference(SExpression sexp,
+                                Namespace ns,
+                                Dictionary<string, TypeTree> variableTypes = null,
+                                Dictionary<SExpression, TypeTree> expressionTypes = null,
+                                List<string> introducedVars = null,
+                                List<string> introducedTypeVars = null) {
+            variableTypes = variableTypes ?? new Dictionary<string, TypeTree>();
+            expressionTypes = expressionTypes ?? new Dictionary<SExpression, TypeTree>();
+            introducedVars = introducedVars ?? new List<string>();
+            introducedTypeVars = introducedTypeVars ?? new List<string>();
+
+            // Do a post-order transversal (children first)
+            if (!sexp.IsLeaf()) {
+                bool success;
+                success = TypeInference(sexp.GetLeft(), ns, variableTypes, expressionTypes, introducedVars, introducedTypeVars);
+                if (!success) return false;
+                success = TypeInference(sexp.GetRight(), ns, variableTypes, expressionTypes, introducedVars, introducedTypeVars);
+                if (!success) return false;
+            }
+            */
+
+        }
 }
