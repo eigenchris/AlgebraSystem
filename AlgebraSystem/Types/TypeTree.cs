@@ -135,14 +135,14 @@ namespace AlgebraSystem {
             } else if (t1.IsLeaf() && TypeTree.IsTypeVariable(t1.value)) {
                 if(!subs.ContainsKey(t1.value)) {
                     subs.Add(t1.value, t2.DeepCopy());
-                } else if(t2.IsLeaf() && t1.value != t2.value) { // don't map a variable to itself
+                } else { // "don't map a variable to itself" is old reasoning... we must alpha-convert trees before unifying them
                     var success = Unify(subs[t1.value], t2, subs);   // If a type var matches two different subtrees, unify them
                     if (success == null) return null;
                 }
             } else if (t2.IsLeaf() && TypeTree.IsTypeVariable(t2.value)) {
                 if (!subs.ContainsKey(t2.value)) {
                     subs.Add(t2.value, t1.DeepCopy());
-                } else if (t1.IsLeaf() && t2.value != t1.value) { // don't map a variable to itself
+                } else {
                     var success = Unify(subs[t2.value], t1, subs);   // If a type var matches two different subtrees, unify them
                     if (success == null) return null;
                 }

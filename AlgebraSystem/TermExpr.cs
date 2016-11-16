@@ -5,7 +5,5 @@ namespace AlgebraSystem {
         public Namespace ns;
         public List<string> vars;
         public TermNew term;
-
-
     }
 }

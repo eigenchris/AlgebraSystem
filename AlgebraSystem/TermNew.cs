@@ -166,11 +166,17 @@ namespace AlgebraSystem {
 
 
         // ----- New Type Inference Attempt -----------------------------
+        public static Dictionary<string, TypeTree> GetVarTypes(SExpression sexp, Namespace ns) {
+            var variableTypes = new Dictionary<string, TypeTree>();
+            var introducedTypeVars = new List<string>();
+            GetVarTypesRecur(sexp, ns, variableTypes, introducedTypeVars);
+            return variableTypes;
+        }
 
-        public static void GetVarTypes(SExpression sexp, Namespace ns, Dictionary<string, TypeTree> variableTypes, List<string> introducedTypeVars) {
+        public static void GetVarTypesRecur(SExpression sexp, Namespace ns, Dictionary<string, TypeTree> variableTypes, List<string> introducedTypeVars) {
             if (!sexp.IsLeaf()) {
-                GetVarTypes(sexp.right, ns, variableTypes, introducedTypeVars);
-                GetVarTypes(sexp.left, ns, variableTypes, introducedTypeVars);
+                GetVarTypesRecur(sexp.right, ns, variableTypes, introducedTypeVars);
+                GetVarTypesRecur(sexp.left, ns, variableTypes, introducedTypeVars);
             } else {
                 string v = sexp.value;
                 TypeTree t; 
@@ -179,7 +185,7 @@ namespace AlgebraSystem {
                     t = ns.VariableLookup(sexp.value).typeExpr.typeTree;
                     variableTypes.Add(v, t);
                 } else {
-                    string eTypeVar = "e" + introducedTypeVars.Count;
+                    string eTypeVar = "v" + introducedTypeVars.Count;
                     t = new TypeTree(eTypeVar);
                     variableTypes.Add(v, t);
                     introducedTypeVars.Add(eTypeVar);
@@ -187,8 +193,52 @@ namespace AlgebraSystem {
             }
         }
 
-        public static TypeTree GetTypeEquations(SExpression sexp, Dictionary<string, TypeTree> variableTypes, Dictionary<string, TypeTree> typeEquations) {
-            return null;
+
+        public static Dictionary<string, TypeTree> GetTypeEquations(SExpression sexp, Dictionary<string,TypeTree> variableTypes) {
+            var subs = new Dictionary<string, TypeTree>();
+            var introducedTypeVars = new List<string>();
+            var t = GetTypeEquationsRecur(sexp, variableTypes, subs, introducedTypeVars);
+            if (t == null) return null;
+            return subs;
+        }
+
+        public static TypeTree GetTypeEquationsRecur(SExpression sexp, Dictionary<string, TypeTree> variableTypes, Dictionary<string, TypeTree> subs, List<string> introducedTypeVars) {
+            if(sexp.IsLeaf()) {
+                return variableTypes[sexp.value];
+            }
+            // unifty(t0, t1->t)
+            // t0 is the type of the left subtree (function which is acting)
+            // t1 is the type of the right subtree (variable being acted on)
+            // t is the type of this node (the result of the function acting on the variable)
+            var t0 = GetTypeEquationsRecur(sexp.left, variableTypes, subs, introducedTypeVars);
+            if (t0 == null) return null;
+            var t1 = GetTypeEquationsRecur(sexp.right, variableTypes, subs, introducedTypeVars);
+            if (t1 == null) return null;
+
+            // Generate a tpye variable for this node in the S-Expression
+            string eTypeVar = "e" + introducedTypeVars.Count;
+            introducedTypeVars.Add(eTypeVar);
+            var t = TypeTree.MakePrimitiveTree(eTypeVar);
+
+            // Unify (t0, t1->t) and get the resulting type t
+            var t1_to_t = new TypeTree(t1, t, TypeConstructor.Function);
+            var newSubs = TypeTree.UnifyAndSolve(t0, t1_to_t);
+            if (newSubs == null) return null;
+            var thisNodeTypeTree = t.Substitute(newSubs);
+
+            //  Update the current subs dictionary with any new ones added in newSubs
+            foreach(var k in newSubs.Keys) {
+                if(!subs.ContainsKey(k)) subs.Add(k, newSubs[k]);
+                else { // for keys that already exist, unify and get the best possible solution
+                    var fixSubs = TypeTree.UnifyAndSolve(subs[k], newSubs[k]);
+                    if (fixSubs.Count > 0) {
+                        var newTree = subs[k].Substitute(fixSubs);
+                        subs[k] = newTree;
+                    }
+                }
+            }
+
+            return thisNodeTypeTree;
         }
 
 
