@@ -205,7 +205,7 @@ namespace AlgebraSystem {
                 charIdx++;
             }
             foreach (var key in variableTypes.Keys) {
-                variableTypes[key].ReplaceString(prettify);
+                variableTypes[key].ReplaceNames(prettify);
             }
 
 

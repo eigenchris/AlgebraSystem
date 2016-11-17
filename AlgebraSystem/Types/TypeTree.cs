@@ -287,9 +287,14 @@ namespace AlgebraSystem {
                 this.right.ReplaceName(oldName, newName);
             }
         }
-        public void ReplaceString(Dictionary<string, string> subs) {
-            foreach (var key in subs.Keys) {
-                this.ReplaceName(key, subs[key]);
+        public void ReplaceNames(Dictionary<string,string> subs) {
+            if (this.IsLeaf()) {
+                if (subs.ContainsKey(this.value)) {
+                    this.value = subs[this.value];
+                }
+            } else {
+                this.left.ReplaceNames(subs);
+                this.right.ReplaceNames(subs);
             }
         }
 
@@ -344,7 +349,21 @@ namespace AlgebraSystem {
 
             return vars;
         }
+        public List<string> GetTypeUnderscoreVariables(List<string> vars = null) {
+            vars = vars ?? new List<string>();
 
+            if (this.IsLeaf()) {
+                string val = this.value;
+                if (val[0] == '_' && !vars.Contains(val)) {
+                    vars.Add(val);
+                }
+            } else {
+                this.left.GetTypeUnderscoreVariables(vars);
+                this.right.GetTypeUnderscoreVariables(vars);
+            }
+
+            return vars;
+        }
 
 
 

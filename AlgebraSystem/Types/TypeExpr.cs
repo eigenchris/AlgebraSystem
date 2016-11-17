@@ -148,6 +148,19 @@ namespace AlgebraSystem {
             }
         }
 
+        // ----- Prettyfying --------------------------------------------
+        public static TypeExpr Prettify(TypeTree t) {
+            List<string> vars = t.GetTypeVariables();
+            List<string> prettyVars = new List<string>();
+            int charInt = 97;
+            foreach(var v in vars) {
+                var newVar = ((char)charInt).ToString();
+                t.ReplaceName(v, newVar);
+                prettyVars.Add(newVar);
+            }
+
+            return new TypeExpr(t, prettyVars);
+        }
 
         // ----- Parsing and conversion To/From other datatypes ---------
         // display a TypeTree as (Bool -> (Bool -> Bool)), for example

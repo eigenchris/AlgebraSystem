@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace AlgebraSystem {
@@ -84,87 +85,6 @@ namespace AlgebraSystem {
         }
 
 
-        // Given a parsed S-Expression, perform type inference and assign a type to every variable in the expression
-        public static bool TypeInference(SExpression sexp, 
-                                        Namespace ns, 
-                                        Dictionary<string, TypeTree> variableTypes = null, 
-                                        Dictionary<SExpression, TypeTree> expressionTypes = null, 
-                                        List<string> introducedVars = null, 
-                                        List<string> introducedTypeVars = null) 
-        {
-            variableTypes = variableTypes ?? new Dictionary<string, TypeTree>();
-            expressionTypes = expressionTypes ?? new Dictionary<SExpression, TypeTree>();
-            introducedVars = introducedVars ?? new List<string>();
-            introducedTypeVars = introducedTypeVars ?? new List<string>();
-
-            // Do a post-order transversal (children first)
-            if (!sexp.IsLeaf()) {
-                bool success;
-                success = TypeInference(sexp.GetLeft(), ns, variableTypes, expressionTypes, introducedVars, introducedTypeVars);
-                if (!success) return false;
-                success = TypeInference(sexp.GetRight(), ns, variableTypes, expressionTypes, introducedVars, introducedTypeVars);
-                if (!success) return false;
-            }
-
-            // create a type variable (e.g. "e12") for the expression
-            // add this to introducedTypeVars so we don't confuse it with any other type variables called "e12" we might bring in
-            string eTypeVar = "e" + expressionTypes.Count;
-            TypeTree thisExpressionType = new TypeTree(eTypeVar);
-            expressionTypes.Add(sexp, thisExpressionType);
-            introducedTypeVars.Add(eTypeVar);
-
-            if (sexp.IsLeaf()) {
-                string v = sexp.value;
-
-                // if it's a previously unseen variable symbol, and it doesn't exist in the namespace,
-                // all we know about it is the stuff we can infered from the child expression types
-                if (!variableTypes.ContainsKey(v) && !ns.ContainsVariable(v)) {
-                    variableTypes.Add(v, thisExpressionType);
-                    introducedVars.Add(v);
-                    return true; // nothing else meaningful we can do, so just return
-                                 // t1 == t2 here, so unify(t1,t2) is meaningless
-                }
-
-                // if it's a previously unseen variable symbol, but it exists in the namespace, look it up
-                if (!variableTypes.ContainsKey(v) && ns.ContainsVariable(v)) {
-                    TypeTree temp = ns.VariableLookup(sexp.value).typeExpr.typeTree;
-                    temp = temp.AddPrime(introducedTypeVars);
-                    introducedTypeVars.AddRange(temp.GetTypeVariables());
-                    variableTypes.Add(v, temp);
-                } // don't "else"! we WANT the next "if" to happen afterward! Stuff in the namespace may have type variables!!
-
-                // if it's a previously seen variable, get its type, and unify against t1 (child expression type info)
-                // update variable type and child expression types, using substitutions from unify()
-                // unify is necessary in cases like "NOT (NOT true)"; with "NOT :: a->a". 
-                // the first application gives us (Bool->a) and the second gives us (Bool->Bool)
-                if (variableTypes.ContainsKey(v)) {
-                    Dictionary<string, TypeTree> subs = TypeTree.UnifyAndSolve(thisExpressionType, variableTypes[v]);
-                    if (subs == null) return false;
-                    variableTypes[v] = variableTypes[v].Substitute(subs);
-                    expressionTypes[sexp] = variableTypes[v];
-                    //$TODO: do I need to reach down more than one level here? don't seem like it
-                }
-
-            } else {
-                TypeTree tt = new TypeTree(expressionTypes[sexp.GetRight()], expressionTypes[sexp], TypeConstructor.Function); // (e1->e2)
-                TypeTree ss = expressionTypes[sexp.GetLeft()]; // actual type tree
-
-                Dictionary<string, TypeTree> subs = TypeTree.UnifyAndSolve(tt, ss);
-                if (subs == null) return false;
-                expressionTypes[sexp] = expressionTypes[sexp].Substitute(subs);
-                expressionTypes[sexp.GetLeft()] = expressionTypes[sexp.GetLeft()].Substitute(subs);
-                expressionTypes[sexp.GetRight()] = expressionTypes[sexp.GetRight()].Substitute(subs);
-
-                // update all variables; left and right aren't enough, a variable to othe far, far right might be affected
-                foreach (var key in variableTypes.Keys.ToList()) {
-                    variableTypes[key] = variableTypes[key].Substitute(subs);
-                }
-            }
-
-            return true;
-        }
-
-
         // ----- New Type Inference Attempt -----------------------------
         public static Dictionary<string, TypeTree> GetVarTypes(SExpression sexp, Namespace ns) {
             var variableTypes = new Dictionary<string, TypeTree>();
@@ -182,7 +102,7 @@ namespace AlgebraSystem {
                 TypeTree t; 
                 if (variableTypes.ContainsKey(v)) {
                 } else if (ns.ContainsVariable(v)) {
-                    t = ns.VariableLookup(sexp.value).typeExpr.typeTree;
+                    t = ns.VariableLookup(sexp.value).typeExpr.typeTree.DeepCopy();
                     variableTypes.Add(v, t);
                 } else {
                     string eTypeVar = "v" + introducedTypeVars.Count;
@@ -194,12 +114,10 @@ namespace AlgebraSystem {
         }
 
 
-        public static Dictionary<string, TypeTree> GetTypeEquations(SExpression sexp, Dictionary<string,TypeTree> variableTypes) {
-            var subs = new Dictionary<string, TypeTree>();
+        public static TypeTree GetTypeEquations(SExpression sexp, Dictionary<string,TypeTree> variableTypes, Dictionary<string,TypeTree> subs) {
             var introducedTypeVars = new List<string>();
             var t = GetTypeEquationsRecur(sexp, variableTypes, subs, introducedTypeVars);
-            if (t == null) return null;
-            return subs;
+            return t;
         }
 
         public static TypeTree GetTypeEquationsRecur(SExpression sexp, Dictionary<string, TypeTree> variableTypes, Dictionary<string, TypeTree> subs, List<string> introducedTypeVars) {
@@ -241,28 +159,63 @@ namespace AlgebraSystem {
             return thisNodeTypeTree;
         }
 
+        public static Tuple<Dictionary<string,TypeTree>,TypeTree> TypeInference(SExpression sexp, Namespace ns) {
+            // assign types to a ll variables and make all type variables unique across the system
+            var namesToTypes = GetVarTypes(sexp, ns);
+            MakeTypeVarsUniqueAndNice(namesToTypes);
 
-        /*
-        public static bool TypeInference(SExpression sexp,
-                                Namespace ns,
-                                Dictionary<string, TypeTree> variableTypes = null,
-                                Dictionary<SExpression, TypeTree> expressionTypes = null,
-                                List<string> introducedVars = null,
-                                List<string> introducedTypeVars = null) {
-            variableTypes = variableTypes ?? new Dictionary<string, TypeTree>();
-            expressionTypes = expressionTypes ?? new Dictionary<SExpression, TypeTree>();
-            introducedVars = introducedVars ?? new List<string>();
-            introducedTypeVars = introducedTypeVars ?? new List<string>();
+            // get and solve type equations
+            var typeEquations = new Dictionary<string, TypeTree>();
+            var expressionType = GetTypeEquations(sexp, namesToTypes, typeEquations);
+            TypeTree.SolveMappings(typeEquations);
 
-            // Do a post-order transversal (children first)
-            if (!sexp.IsLeaf()) {
-                bool success;
-                success = TypeInference(sexp.GetLeft(), ns, variableTypes, expressionTypes, introducedVars, introducedTypeVars);
-                if (!success) return false;
-                success = TypeInference(sexp.GetRight(), ns, variableTypes, expressionTypes, introducedVars, introducedTypeVars);
-                if (!success) return false;
+            // substitute solutions to type equations
+            var keys = namesToTypes.Keys.ToList();
+            for (int i=0; i<keys.Count; i++) {
+                string k = keys[i];
+                namesToTypes[k] = namesToTypes[k].Substitute(typeEquations);
             }
-            */
+            expressionType.Substitute(typeEquations);
+
+            return new Tuple<Dictionary<string, TypeTree>, TypeTree>(namesToTypes, expressionType);
+        }
+
+
+        public static void MakeTypeVarsUniqueAndNice(Dictionary<string, TypeTree> namesToTypes) {
+            int charInt = 97;
+            foreach (var k in namesToTypes.Keys) {
+                List<string> typeVarList = namesToTypes[k].GetTypeVariables();
+                var subs = new Dictionary<string, string>();
+                foreach (var v in typeVarList) {
+                    subs.Add(v, ((char)charInt).ToString());
+                    charInt++;
+                }
+                namesToTypes[k].ReplaceNames(subs);
+            }
+        }
+
+
+            /*
+            public static bool TypeInference(SExpression sexp,
+                                    Namespace ns,
+                                    Dictionary<string, TypeTree> variableTypes = null,
+                                    Dictionary<SExpression, TypeTree> expressionTypes = null,
+                                    List<string> introducedVars = null,
+                                    List<string> introducedTypeVars = null) {
+                variableTypes = variableTypes ?? new Dictionary<string, TypeTree>();
+                expressionTypes = expressionTypes ?? new Dictionary<SExpression, TypeTree>();
+                introducedVars = introducedVars ?? new List<string>();
+                introducedTypeVars = introducedTypeVars ?? new List<string>();
+
+                // Do a post-order transversal (children first)
+                if (!sexp.IsLeaf()) {
+                    bool success;
+                    success = TypeInference(sexp.GetLeft(), ns, variableTypes, expressionTypes, introducedVars, introducedTypeVars);
+                    if (!success) return false;
+                    success = TypeInference(sexp.GetRight(), ns, variableTypes, expressionTypes, introducedVars, introducedTypeVars);
+                    if (!success) return false;
+                }
+                */
 
         }
 }
