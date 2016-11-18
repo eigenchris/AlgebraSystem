@@ -91,5 +91,20 @@ namespace UnitTestProject1 {
             Assert.AreEqual(n5.Item2.value, "Bool");
         }
 
+        [TestMethod]
+        public void TermNewTest_ConstructTermFromSExpression() {
+            // Arrange
+            var gns = Namespace.CreateGlobalNs();
+
+            string s = "NOT (y z (y x z) )";
+
+            // Act
+            var t = TermNew.TermFromSExpression(s, gns);
+
+            // Assert
+            Assert.IsTrue(t.typeTree.IsLeaf());
+            Assert.AreEqual(t.typeTree.value, "Bool");
+        }
+
     }
 }

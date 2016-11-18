@@ -16,15 +16,17 @@ namespace AlgebraSystem {
             set { _value = value; left = null; right = null; }
         }
 
-        public TermNew(TermNew l, TermNew r) {
+        public TermNew(TermNew l, TermNew r, TypeTree typeExpr) {
             this.SetChildren(l.DeepCopy(), r.DeepCopy());
+            this.typeTree = typeExpr;
         }
         public TermNew() {
             this.value = null;
         }
-        public static TermNew MakePrimitiveTree(string s) {
+        public static TermNew MakePrimitiveTree(string s, TypeTree typeTree) {
             TermNew temp = new TermNew();
             temp.value = s;
+            temp.typeTree = typeTree;
             return temp;
         }
         // Getting is normal, but setting should set the string to empty
@@ -51,10 +53,10 @@ namespace AlgebraSystem {
         public TermNew DeepCopy() {
             // It might be better to use Apply() so we get the type inference for free...
             if (this.IsLeaf()) {
-                TermNew ta = TermNew.MakePrimitiveTree(this.value);
+                TermNew ta = TermNew.MakePrimitiveTree(this.value, this.typeTree.DeepCopy());
                 return ta;
             } else {
-                return new TermNew(this.left, this.right);
+                return new TermNew(this.left, this.right, this.typeTree.DeepCopy());
             }
         }
         public bool DeepEquals(TermNew t) {
@@ -84,6 +86,27 @@ namespace AlgebraSystem {
             return "(" + childrenString + ")";
         }
 
+        public static TermNew TermFromSExpression(string s, Namespace parentNS) {
+            SExpression sexp = Parser.ParseSExpression(s);
+            return TermFromSExpression(sexp, parentNS);
+        }
+        public static TermNew TermFromSExpression(SExpression sexp, Namespace parentNS) {
+            var tuple = TypeInference(sexp, parentNS);
+            Dictionary<string,TypeTree> namesToTypes = tuple.Item1;
+            TermNew termNew = ConstructFromSExpression(sexp, namesToTypes);
+            return termNew;
+        }
+        public static TermNew ConstructFromSExpression(SExpression sexp, Dictionary<string,TypeTree> namesToType) {
+            if(sexp.IsLeaf()) {
+                TypeTree typeTree = namesToType[sexp.value];
+                return TermNew.MakePrimitiveTree(sexp.value, typeTree);
+            } else {
+                TermNew leftTerm = ConstructFromSExpression(sexp.left, namesToType);
+                TermNew rightTerm = ConstructFromSExpression(sexp.right, namesToType);
+                TypeTree typeTree = leftTerm.typeTree.GetRight();
+                return new TermNew(leftTerm, rightTerm, typeTree);
+            }
+        }
 
         // ----- New Type Inference Attempt -----------------------------
         public static Dictionary<string, TypeTree> GetVarTypes(SExpression sexp, Namespace ns) {
@@ -146,8 +169,9 @@ namespace AlgebraSystem {
             return t;
         }
 
+        // converts a list of type equations into a dictionary mapping type variables to their corresponding expressions
         public static Dictionary<string,TypeTree> SolveTypeEquations(List<Tuple<TypeTree,TypeTree>> typeEquations) {
-            var masterSubs = new Dictionary<string, TypeTree>();
+            var masterSubs = new Dictionary<string, TypeTree>(); 
             for(int i=0; i<typeEquations.Count; i++) {
                 var subs = TypeTree.UnifyAndSolve(typeEquations[i].Item1, typeEquations[i].Item2);
                 foreach(var k in subs.Keys) {
@@ -207,27 +231,6 @@ namespace AlgebraSystem {
         }
 
 
-            /*
-            public static bool TypeInference(SExpression sexp,
-                                    Namespace ns,
-                                    Dictionary<string, TypeTree> variableTypes = null,
-                                    Dictionary<SExpression, TypeTree> expressionTypes = null,
-                                    List<string> introducedVars = null,
-                                    List<string> introducedTypeVars = null) {
-                variableTypes = variableTypes ?? new Dictionary<string, TypeTree>();
-                expressionTypes = expressionTypes ?? new Dictionary<SExpression, TypeTree>();
-                introducedVars = introducedVars ?? new List<string>();
-                introducedTypeVars = introducedTypeVars ?? new List<string>();
-
-                // Do a post-order transversal (children first)
-                if (!sexp.IsLeaf()) {
-                    bool success;
-                    success = TypeInference(sexp.GetLeft(), ns, variableTypes, expressionTypes, introducedVars, introducedTypeVars);
-                    if (!success) return false;
-                    success = TypeInference(sexp.GetRight(), ns, variableTypes, expressionTypes, introducedVars, introducedTypeVars);
-                    if (!success) return false;
-                }
-                */
 
         }
 }

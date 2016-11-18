@@ -24,6 +24,10 @@ namespace AlgebraSystem {
             this.typeTree = temp.typeTree;
             this.boundTypeVars = temp.boundTypeVars;
         }
+        public TypeExpr(TypeTree tree) {
+            this.typeTree = tree;
+            this.boundTypeVars = tree.GetTypeVariables();
+        }
 
         public TypeExpr() {
             this.boundTypeVars = new List<string>();
