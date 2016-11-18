@@ -77,12 +77,12 @@ namespace UnitTestProject1 {
             var sexp5 = Parser.ParseSExpression(s5);
 
             // Act
-            var n0 = TermNew.TypeInference2(sexp0, gns);
-            var n1 = TermNew.TypeInference2(sexp1, gns);
-            var n2 = TermNew.TypeInference2(sexp2, gns);
-            var n3 = TermNew.TypeInference2(sexp3, gns);
-            var n4 = TermNew.TypeInference2(sexp4, gns);
-            var n5 = TermNew.TypeInference2(sexp5, gns);
+            var n0 = TermNew.TypeInference(sexp0, gns);
+            var n1 = TermNew.TypeInference(sexp1, gns);
+            var n2 = TermNew.TypeInference(sexp2, gns);
+            var n3 = TermNew.TypeInference(sexp3, gns);
+            var n4 = TermNew.TypeInference(sexp4, gns);
+            var n5 = TermNew.TypeInference(sexp5, gns);
 
             // Assert
             var BoolBool = Parser.ParseTypeTree("Bool -> Bool");
