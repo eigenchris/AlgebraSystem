@@ -91,8 +91,8 @@ namespace AlgebraSystem {
             return TermFromSExpression(sexp, parentNS);
         }
         public static TermNew TermFromSExpression(SExpression sexp, Namespace parentNS) {
-            var tuple = TypeInference(sexp, parentNS);
-            Dictionary<string,TypeTree> namesToTypes = tuple.Item1;
+            var expressionNS = new Namespace(parentNS);
+            Dictionary<string, TypeTree> namesToTypes = TypeInference(sexp, expressionNS);
             TermNew termNew = ConstructFromSExpression(sexp, namesToTypes);
             return termNew;
         }
@@ -137,14 +137,8 @@ namespace AlgebraSystem {
         }
 
 
-
-        public static TypeTree GetTypeEquations(SExpression sexp, Dictionary<string, TypeTree> variableTypes, List<Tuple<TypeTree, TypeTree>> equations) {
-            var introducedTypeVars = new List<string>();
-            var t = GetTypeEquationsRecur(sexp, variableTypes, equations, introducedTypeVars);
-            return t;
-        }
-
-        public static TypeTree GetTypeEquationsRecur(SExpression sexp, Dictionary<string, TypeTree> variableTypes, List<Tuple<TypeTree, TypeTree>> equations, List<string> introducedTypeVars) {
+        public static TypeTree GetTypeEquations(SExpression sexp, Dictionary<string, TypeTree> variableTypes, List<Tuple<TypeTree, TypeTree>> equations, List<string> introducedTypeVars = null) {
+            introducedTypeVars = introducedTypeVars ?? new List<string>();
             if (sexp.IsLeaf()) {
                 return variableTypes[sexp.value];
             }
@@ -152,9 +146,9 @@ namespace AlgebraSystem {
             // t0 is the type of the left subtree (function which is acting)
             // t1 is the type of the right subtree (variable being acted on)
             // t is the type of this node (the result of the function acting on the variable)
-            var t0 = GetTypeEquationsRecur(sexp.left, variableTypes, equations, introducedTypeVars);
+            var t0 = GetTypeEquations(sexp.left, variableTypes, equations, introducedTypeVars);
             if (t0 == null) return null;
-            var t1 = GetTypeEquationsRecur(sexp.right, variableTypes, equations, introducedTypeVars);
+            var t1 = GetTypeEquations(sexp.right, variableTypes, equations, introducedTypeVars);
             if (t1 == null) return null;
 
             // Generate a tpye variable for this node in the S-Expression
@@ -194,9 +188,9 @@ namespace AlgebraSystem {
             return false;
         }
 
-        public static Tuple<Dictionary<string, TypeTree>, TypeTree> TypeInference(SExpression sexp, Namespace ns) {
+        public static Dictionary<string, TypeTree> TypeInference(SExpression sexp, Namespace expressionNS) {
             // assign types to a ll variables and make all type variables unique across the system
-            var namesToTypes = GetVarTypes(sexp, ns);
+            var namesToTypes = GetVarTypes(sexp, expressionNS);
             MakeTypeVarsUniqueAndNice(namesToTypes);
 
             // get and solve type equations
@@ -210,9 +204,8 @@ namespace AlgebraSystem {
                 string k = keys[i];
                 namesToTypes[k] = namesToTypes[k].Substitute(typeSolutions);
             }
-            expressionType = expressionType.Substitute(typeSolutions);
 
-            return new Tuple<Dictionary<string, TypeTree>, TypeTree>(namesToTypes, expressionType);
+            return namesToTypes;
         }
 
 

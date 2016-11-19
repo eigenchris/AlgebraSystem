@@ -86,9 +86,8 @@ namespace UnitTestProject1 {
 
             // Assert
             var BoolBool = Parser.ParseTypeTree("Bool -> Bool");
-            Assert.IsTrue(n3.Item1["g"].DeepEquals(BoolBool));
-            Assert.AreEqual(n5.Item1["x"].value, "Bool");
-            Assert.AreEqual(n5.Item2.value, "Bool");
+            Assert.IsTrue(n3["g"].DeepEquals(BoolBool));
+            Assert.AreEqual(n5["x"].value, "Bool");
         }
 
         [TestMethod]
