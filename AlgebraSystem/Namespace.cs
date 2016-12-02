@@ -187,11 +187,13 @@ namespace AlgebraSystem {
             return true;
         }
 
-        public bool AddConstantExpression(string name, Term expression, string vars="") {
+        public bool AddConstantExpression(string name, TermNew expression, string vars="") {
             if (name == "" || this.ContainsVariableLocal(name)) {
                 this.NameError(name);
                 return false;
             }
+
+            Namespace expressionNS = new Namespace(this);
 
             // "vars" specifies the order of the arguments which are BOUND (might also contain vars that don't appear in the expression)
             // all other variables are considered FREE
@@ -200,19 +202,19 @@ namespace AlgebraSystem {
             // Get a list of all used type variables
             List<string> usedTypeVars = new List<string>();
             foreach(var var in boundVars) {
-                if (expression.ns.ContainsTypeLocal(var)) {
-                    usedTypeVars.Concat(expression.ns.VariableLookup(var).typeExpr.typeTree.GetTypeVariables());
+                if (expressionNS.ContainsTypeLocal(var)) {
+                    usedTypeVars.Concat(expressionNS.VariableLookup(var).typeExpr.typeTree.GetTypeVariables());
                 }
             }
             // Get overall type tree
             List<TypeTree> treeList = new List<TypeTree>();
             foreach (var var in boundVars) {
                 // variables not in the expression must be added (e.g. for "const x y = x") 
-                if (!expression.ns.ContainsVariableLocal(var)) {
+                if (!expressionNS.ContainsVariableLocal(var)) {
                     string typeVar = TypeTree.AddPrime("a", usedTypeVars);
-                    expression.ns.AddVariable(var, typeVar);
+                    expressionNS.AddVariable(var, typeVar);
                 }
-                treeList.Add(expression.ns.VariableLookup(var).typeExpr.typeTree);
+                treeList.Add(expressionNS.VariableLookup(var).typeExpr.typeTree);
             }
             treeList.Add(expression.typeTree);
             TypeTree typeTree = TypeTree.TypeTreeFromTreeList(treeList);
@@ -228,10 +230,10 @@ namespace AlgebraSystem {
                 return false;
             }
 
-            Term expression = Term.TermFromSExpression(expressionString,this);
+            TermNew expression = TermNew.TermFromSExpression(expressionString,this);
             if (expression == null) return false;
 
-            return AddConstantExpression(name,expression,vars);            
+            return AddConstantExpression(name, expression, vars);            
         }
         // copies an existing variable from another namespace  into this namespace
         // (keeps the particular Constant subclass in tact; Evaluate() will work properly)

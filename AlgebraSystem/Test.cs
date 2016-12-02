@@ -21,10 +21,10 @@ namespace AlgebraSystem {
         }
 
         public static void BooleanEvaluate() {
-            Term tANDt = gns.VariableLookup("AND").Evaluate("true,true");
-            Term tANDf = gns.VariableLookup("AND").Evaluate("true,false");
-            Term tXORf = gns.VariableLookup("XOR").Evaluate("true,false");
-            Term NOTt = gns.VariableLookup("NOT").Evaluate("true");
+            TermNew tANDt = gns.VariableLookup("AND").Evaluate("true,true");
+            TermNew tANDf = gns.VariableLookup("AND").Evaluate("true,false");
+            TermNew tXORf = gns.VariableLookup("XOR").Evaluate("true,false");
+            TermNew NOTt = gns.VariableLookup("NOT").Evaluate("true");
 
             Console.WriteLine("t AND t :\t" + tANDt);
             Console.WriteLine("t AND f :\t" + tANDf);
@@ -56,11 +56,11 @@ namespace AlgebraSystem {
 
             string sexpr = "NOT (AND x (f y (NOT x)))";
             gns.AddConstantExpression("bork", sexpr, "f,x,y");
-            Term result = gns.variableLookup["bork"].Evaluate("AND,true,false");
+            TermNew result = gns.variableLookup["bork"].Evaluate("AND,true,false");
 
             string sexpr3 = "cmp id id x";
             gns.AddConstantExpression("bork3", sexpr3, "x");
-            Term result3 = gns.variableLookup["bork3"].Evaluate("true");
+            TermNew result3 = gns.variableLookup["bork3"].Evaluate("true");
 
 
             string sexpr2 = "cmp cmp cmp";

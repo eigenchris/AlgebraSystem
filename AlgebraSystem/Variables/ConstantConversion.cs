@@ -23,15 +23,17 @@ namespace AlgebraSystem {
             return ComputationType.conversion;
         }
 
-        public override Term Evaluate(List<Term> argsTermList) {
+        public override TermNew Evaluate(List<TermNew> argsTermList) {
+            // only allow leaf trees for ConstantConversion evals
             List<string> argsStringList = Parser.TermsToNames(argsTermList);
             return Evaluate(argsStringList);
         }
 
-        public override Term Evaluate(List<string> args) {
+        public override TermNew Evaluate(List<string> args) {
             string resultString = this.conversion(args);
             if (resultString == "") return null;
-            Term resultTerm = Term.MakePrimitiveTree(resultString, this.ns);
+            TypeExpr typeExpr = this.ns.VariableLookup(resultString).typeExpr;
+            TermNew resultTerm = TermNew.MakePrimitiveTree(resultString, typeExpr.typeTree);
             return resultTerm;
         }
 

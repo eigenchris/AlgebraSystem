@@ -25,8 +25,8 @@ namespace AlgebraSystem {
         }
 
         // Primative takes no arguments; it evaluates to itself
-        public override Term Evaluate(List<Term> args) {
-            return null;
+        public override TermNew Evaluate(List<TermNew> args) {
+            return TermNew.MakePrimitiveTree(this.name, this.typeExpr.typeTree);
         }
 
 

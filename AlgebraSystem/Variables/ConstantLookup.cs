@@ -27,13 +27,13 @@ namespace AlgebraSystem {
             return ComputationType.lookup;
         }
 
-        public override Term Evaluate(List<Term> argsTermList) {
+        public override TermNew Evaluate(List<TermNew> argsTermList) {
             if (argsTermList.Count != this.expectedNumberOfArgs) {
                 return null; // number of args is not correct
             }
 
-            List<string> argsStringList = Parser.TermsToNames(argsTermList);
-            if (argsStringList == null) return null; // only works on primitive terms
+            // this will allow non-primative Terms to be added to the dictionary
+            var argsStringList = argsTermList.Select(t => t.ToString()) as List<string>;
 
             string argsString = string.Join(",", argsStringList.ToArray());
             if (!this.lookup.ContainsKey(argsString)) {
@@ -41,19 +41,22 @@ namespace AlgebraSystem {
                 //Console.WriteLine("Evaluation failed!\nInput set '"+argsString+"' isn't in the lookup.");
                 return null;
             } else {
-                return Term.MakePrimitiveTree(this.lookup[argsString],this.ns);
+                string evalResult = this.lookup[argsString];
+                TypeExpr typeExpr = ns.VariableLookup(evalResult).typeExpr.DeepCopy();
+                return TermNew.MakePrimitiveTree(evalResult, typeExpr.typeTree);
             }
         }
 
-        public override Term Evaluate(List<string> args) {
+        public override TermNew Evaluate(List<string> args) {
             string argsString = string.Join(",", args.ToArray());
             if (!this.lookup.ContainsKey(argsString)) {
                 // if it's not in the lookup, it's not a failure; we just don't evaluate and leave the expression as-is
                 //Console.WriteLine("Evaluation failed!\nInput set '"+argsString+"' isn't in the lookup.");
                 return null;
             } else {
-                string resultString = this.lookup[argsString];
-                return Term.MakePrimitiveTree(resultString,this.ns);
+                string evalResult = this.lookup[argsString];
+                TypeExpr typeExpr = ns.VariableLookup(evalResult).typeExpr.DeepCopy();
+                return TermNew.MakePrimitiveTree(evalResult, typeExpr.typeTree);
             }
         }
 

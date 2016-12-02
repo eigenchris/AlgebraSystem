@@ -168,7 +168,7 @@ namespace AlgebraSystem {
 
             // do evaluation if all arguments are present; otherwise, do not
             Variable functionObj = this.ns.VariableLookup(this.value);
-            Term result = functionObj.Evaluate(args);
+            Term result = null; // functionObj.Evaluate(args);
 
             // nul means no evaluation takes place
             if (result != null) {

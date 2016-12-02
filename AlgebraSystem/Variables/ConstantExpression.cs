@@ -7,17 +7,18 @@ using System.Threading.Tasks;
 namespace AlgebraSystem {
     public class ConstantExpression : Constant {
 
-        public Term expression;
+        public TermNew expression;
+        public Namespace expressionNS;
         public List<string> boundVariables;
 
-        private ConstantExpression(string name, TypeExpr typeExpr, Namespace ns, string printString, Term expression, List<string> inputVars) :
+        private ConstantExpression(string name, TypeExpr typeExpr, Namespace ns, string printString, TermNew expression, List<string> inputVars) :
             base(name, typeExpr, ns, printString) {
             this.expression = expression;
             this.boundVariables = inputVars;
             this.expectedNumberOfArgs = inputVars.Count;
             this.compType = ComputationType.expression; // parent constructor gets called first, so this is okay
         }
-        public ConstantExpression(string name, TypeExpr typeExpr, Namespace ns, Term expression, List<string> inputVars) :
+        public ConstantExpression(string name, TypeExpr typeExpr, Namespace ns, TermNew expression, List<string> inputVars) :
             this(name, typeExpr, ns, name, expression, inputVars) { }
 
         public override ComputationType GetCompType() {
@@ -25,7 +26,7 @@ namespace AlgebraSystem {
         }
 
         // include an ExpressionTree here
-        public override Term Evaluate(List<Term> args) {
+        public override TermNew Evaluate(List<TermNew> args) {
             if (args.Count != this.expectedNumberOfArgs) {
                 return null; // number of args is not correct
             }
@@ -33,7 +34,7 @@ namespace AlgebraSystem {
             // type variable checking
             Dictionary<string, TypeTree> typeSubs = new Dictionary<string, TypeTree>();
             for (int i = 0; i < boundVariables.Count; i++) {
-                Variable expectedArg = this.expression.ns.VariableLookup(this.boundVariables[i]);
+                Variable expectedArg = this.ns.VariableLookup(this.boundVariables[i]);
                 typeSubs = TypeTree.UnifyAndSolve(args[i].typeTree, expectedArg.typeExpr.typeTree, typeSubs);
                 if (typeSubs == null) {
                     Console.WriteLine("Could not apply variable " + args[i] + " :: " + args[i].typeTree);
@@ -43,14 +44,14 @@ namespace AlgebraSystem {
             }
 
             //copy the tree so we can substitude safely
-            Dictionary<string, Term> varSubs = new Dictionary<string, Term>();
+            var varSubs = new Dictionary<string, TermNew>();
             for (int i = 0; i < boundVariables.Count; i++) {
                 varSubs.Add(boundVariables[i], args[i]);
             }
-            Term expressionCopy = expression.Substitute(varSubs);
+            TermNew expressionCopy = expression.Substitute(varSubs);
 
             // collapse tree with Eval() and return result
-            expressionCopy.Eval();
+            //expressionCopy.Eval();
 
             return expressionCopy;
         }

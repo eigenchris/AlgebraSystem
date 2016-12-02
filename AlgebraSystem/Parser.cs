@@ -33,6 +33,14 @@ namespace AlgebraSystem {
             }
             return s;
         }
+        public static List<string> TermsToNames(List<TermNew> t) {
+            List<string> s = new List<string>();
+            foreach (var term in t) {
+                if (!term.IsLeaf()) return null;
+                s.Add(term.value);
+            }
+            return s;
+        }
         public static List<Term> NamesToTerms(List<string> s, Namespace ns) {
             List<Term> t = new List<Term>();
             foreach (var name in s) {

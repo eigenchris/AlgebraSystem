@@ -44,23 +44,23 @@ namespace AlgebraSystem {
 
         // A variable does *NOT* evaluate to itself (a variable function keeps its children!!)
         // Do not evaluate  at all, i.e., return the empty string
-        public virtual Term Evaluate(List<Term> args) {
+        public virtual TermNew Evaluate(List<TermNew> args) {
             return null;
         }
-        public virtual Term Evaluate(List<string> args) {
+        public virtual TermNew Evaluate(List<string> args) {
             //List<Term> t = Parser.NamesTSoTerms(args, this.ns);
-            List<Term> t = new List<Term>();
+            List<TermNew> t = new List<TermNew>();
             foreach(var s in args) { // parse each string as an S-expression
-                t.Add(Term.TermFromSExpression(s, this.ns));
+                t.Add(TermNew.TermFromSExpression(s, this.ns));
             }
             return Evaluate(t);
         }
         // there aren't any arguments anyway.. so zero arguments is allowed
-        public Term Evaluate() {
+        public TermNew Evaluate() {
             // this will call Evaluate() in child classes too, if we call from a Constant instead
             return this.Evaluate(new List<string>());
         }
-        public Term Evaluate(string args) {
+        public TermNew Evaluate(string args) {
             List<string> argsList = Parser.CssToList(args);
             return this.Evaluate(argsList);
         }

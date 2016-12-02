@@ -70,6 +70,26 @@ namespace AlgebraSystem {
         }
 
 
+        public TermNew Substitute(Dictionary<string, TermNew> subs) {
+            if (subs == null || !subs.Any()) return this.DeepCopy();
+
+            //post-order transveral
+            if (this.IsLeaf()) {
+                if (subs != null && subs.ContainsKey(this.value)) {
+                    TermNew tn = subs[this.value].DeepCopy();
+                    return tn;
+                } else {
+                    TermNew tn = TermNew.MakePrimitiveTree(this.value, this.typeTree.DeepCopy());
+                    return tn;
+                }
+            } else {
+                TermNew left = this.left.Substitute(subs);
+                TermNew right = this.right.Substitute(subs);
+                return new TermNew(left, right, left.typeTree.GetRight());
+            }
+        }
+
+
 
         // ----- Parsing and conversion To/From other datatypes ---------
         public override string ToString() {
@@ -224,6 +244,28 @@ namespace AlgebraSystem {
         }
 
 
+        // ----- Apply and Eval -------------------------------
+        public TermNew Eval(Namespace ns) {
+            // loop over the right-hand branches from top-right to bottom-left
+            TermNew currentTerm = this;
+            var argList = new List<TermNew>();
+            while(!currentTerm.IsLeaf()) {
+                TermNew arg = currentTerm.right.Eval(ns);
+                if (arg == null) return null; // not enough args to eval (ConstantLookup or ConstantConversion)
+                argList.Add(arg);
+                currentTerm = currentTerm.left;
+            }
+            argList.Reverse(); // put left-most argument first in the list
 
+            string functionSymbol = currentTerm.value;
+            Variable functionObject = ns.VariableLookup(functionSymbol);
+            var t = functionObject.GetType();
+            TermNew result = functionObject.Evaluate(argList);
+
+            return result;
         }
+
+
+
+    }
 }

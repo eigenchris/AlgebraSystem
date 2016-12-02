@@ -18,7 +18,7 @@ namespace AlgebraSystem {
         public Constant(string name, string type, Namespace ns, string printString) :
             this(name, new TypeExpr(type), ns, printString) { }
 
-        public abstract override Term Evaluate(List<Term> args);
+        public abstract override TermNew Evaluate(List<TermNew> args);
 
         public override bool IsVariabe() {
             return false;
