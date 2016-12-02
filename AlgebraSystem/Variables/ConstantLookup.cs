@@ -33,7 +33,7 @@ namespace AlgebraSystem {
             }
 
             // this will allow non-primative Terms to be added to the dictionary
-            var argsStringList = argsTermList.Select(t => t.ToString()) as List<string>;
+            var argsStringList = argsTermList.Select(t => t.ToString());
 
             string argsString = string.Join(",", argsStringList.ToArray());
             if (!this.lookup.ContainsKey(argsString)) {

@@ -259,7 +259,6 @@ namespace AlgebraSystem {
 
             string functionSymbol = currentTerm.value;
             Variable functionObject = ns.VariableLookup(functionSymbol);
-            var t = functionObject.GetType();
             TermNew result = functionObject.Evaluate(argList);
 
             return result;
