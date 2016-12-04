@@ -115,7 +115,7 @@ namespace AlgebraSystem {
 
         // ----- Apply and Eval -------------------------------
         public bool Apply(string args) {
-            List<string> argsList = Parser.CssToList(args);
+            List<string> argsList = Parser.ScsvToList(args);
             bool success = true;
             foreach (var arg in argsList) {
                 if (!ns.ContainsVariable(arg)) {

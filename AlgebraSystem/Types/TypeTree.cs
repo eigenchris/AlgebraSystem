@@ -300,14 +300,6 @@ namespace AlgebraSystem {
 
 
         // ----- Namespace stuff ----------------------------------------
-        public bool ValidateAgainstNamespace(Namespace ns) {
-            if (this.IsLeaf()) {
-                return TypeTree.IsTypeVariable(this.value) || (ns.TypeLookup(this.value) != null);                    
-            } else {
-                return this.left.ValidateAgainstNamespace(ns) && this.right.ValidateAgainstNamespace(ns);
-            }
-        }
-
         public static bool IsTypeVariable(string name) {
             if (string.IsNullOrEmpty(name)) return false;
             if (!char.IsLetter(name[0])) return false;

@@ -47,15 +47,24 @@ namespace AlgebraSystem {
         public bool ContainsType(string name) {
             return this.TypeLookup(name) != null;
         }
-        
+
+        public bool ValidateTree(TypeTree tree) {
+            if (tree.IsLeaf()) {
+                return TypeTree.IsTypeVariable(tree.value) || (this.TypeLookup(tree.value) != null);
+            } else {
+                return this.ValidateTree(tree.GetLeft()) && this.ValidateTree(tree.GetRight());
+            }
+        }
+
         // ----- Adding objects ----------------------------
         public bool AddTypeSet(string names) {
             if (names == "") return false;
 
-            List<string> namesList = Parser.CssToList(names);
+            List<string> namesList = Parser.ScsvToList(names);
             bool success = true;
             foreach(var name in namesList) {
-                string nameCapital = char.ToUpper(name[0]) + name.Substring(1);
+                string nameCapital = char.ToUpper(name[0]).ToString();
+                if(name.Length > 1) nameCapital += name.Substring(1);
                 if (this.ContainsTypeLocal(nameCapital)) {
                     this.NameError(nameCapital);
                     return false;
@@ -92,12 +101,12 @@ namespace AlgebraSystem {
         public bool AddVariable(string names, TypeExpr typeExpr) {
             if (names == "" || typeExpr.typeTree == null || (typeExpr.typeTree.IsLeaf() && typeExpr.typeTree.value=="")) return false;
 
-            if (!typeExpr.typeTree.ValidateAgainstNamespace(this)) {
+            if (!this.ValidateTree(typeExpr.typeTree)) {
                 this.TypeTreeError(names, typeExpr.typeTree);
                 return false;
             }
 
-            List<string> namesList = Parser.CssToList(names);
+            List<string> namesList = Parser.ScsvToList(names);
             bool success = true;
             foreach (var name in namesList) {
                 if (this.ContainsVariableLocal(name)) {
@@ -119,7 +128,7 @@ namespace AlgebraSystem {
         public bool AddConstantPrimitive(string names, TypeExpr typeExpr) {
             if (names == "" || typeExpr.typeTree == null || (typeExpr.typeTree.IsLeaf() && typeExpr.typeTree.value == "")) return false;
 
-            if (!typeExpr.typeTree.ValidateAgainstNamespace(this)) {
+            if (!this.ValidateTree(typeExpr.typeTree)) {
                 this.TypeTreeError(names, typeExpr.typeTree);
                 return false;
             }
@@ -128,7 +137,7 @@ namespace AlgebraSystem {
                 return false;
             }
 
-            List<string> namesList = Parser.CssToList(names);
+            List<string> namesList = Parser.ScsvToList(names);
             bool success = true;
             foreach (var name in namesList) {
                 if (this.ContainsVariableLocal(name)) {
@@ -177,7 +186,7 @@ namespace AlgebraSystem {
                 Console.WriteLine("Cannot add constant -- typeTree is not valid.");
                 return false;
             }
-            bool valid = exprTree.typeTree.ValidateAgainstNamespace(this);
+            bool valid = this.ValidateTree(exprTree.typeTree);
             if (!valid) {
                 Console.WriteLine("Cannot add constant -- typeTree is not valid.");
                 return false;
@@ -197,7 +206,7 @@ namespace AlgebraSystem {
 
             // "vars" specifies the order of the arguments which are BOUND (might also contain vars that don't appear in the expression)
             // all other variables are considered FREE
-            List<string> boundVars = new HashSet<string>(Parser.CssToList(vars)).ToList(); // delete duplicates
+            List<string> boundVars = new HashSet<string>(Parser.ScsvToList(vars)).ToList(); // delete duplicates
 
             // Get a list of all used type variables
             List<string> usedTypeVars = new List<string>();
@@ -308,27 +317,32 @@ namespace AlgebraSystem {
         public static Namespace CreateGlobalNs() {
             Namespace gns = new Namespace();
 
+            ///// TYPE CONSTRUCTORS //////
+            gns.AddTypeSet("->");
+            gns.AddTypeSet("|");
+            gns.AddTypeSet(",");
+
             ///// BOOLEANS ///////////////
             gns.AddTypeSet("Bool");
-            gns.AddConstantPrimitive("true,false", "Bool");
+            gns.AddConstantPrimitive("true;false", "Bool");
 
             Dictionary<string, string> AND = new Dictionary<string, string>() {
-                { "true,true",  "true"},
-                { "true,false", "false"},
-                { "false,true", "false"},
-                { "false,false","false"}
+                { "true;true",  "true"},
+                { "true;false", "false"},
+                { "false;true", "false"},
+                { "false;false","false"}
             };
             Dictionary<string, string> OR = new Dictionary<string, string>() {
-                { "true,true",  "true"},
-                { "true,false", "true"},
-                { "false,true", "true"},
-                { "false,false","false"}
+                { "true;true",  "true"},
+                { "true;false", "true"},
+                { "false;true", "true"},
+                { "false;false","false"}
             };
             Dictionary<string, string> XOR = new Dictionary<string, string>() {
-                { "true,true",  "false"},
-                { "true,false", "true"},
-                { "false,true", "true"},
-                { "false,false","false"}
+                { "true;true",  "false"},
+                { "true;false", "true"},
+                { "false;true", "true"},
+                { "false;false","false"}
             };
             Dictionary<string, string> NOT = new Dictionary<string, string>() {
                 { "true",  "false"},
@@ -352,6 +366,7 @@ namespace AlgebraSystem {
             gns.AddConstantConversion("/", "(Int -> (Int -> Int))", ConversionFuncs._IntDiv);
             gns.AddConstantConversion("%", "(Int -> (Int -> Int))", ConversionFuncs._IntMod);
             gns.AddConstantConversion("^", "(Int -> (Int -> Int))", ConversionFuncs._IntPow);
+            gns.AddConstantConversion("neg", "(Int -> Int)", ConversionFuncs._IntNeg);
 
             gns.AddConstantConversion("=", "(Int -> (Int -> Bool))", ConversionFuncs._EQ);
             gns.AddConstantConversion("<", "(Int -> (Int -> Bool))", ConversionFuncs._LT);

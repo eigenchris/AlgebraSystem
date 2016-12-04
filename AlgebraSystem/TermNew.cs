@@ -259,7 +259,7 @@ namespace AlgebraSystem {
 
             string functionSymbol = currentTerm.value;
             Variable functionObject = ns.VariableLookup(functionSymbol);
-            TermNew result = functionObject.Evaluate(argList);
+            TermNew result = functionObject?.Evaluate(argList);
 
             return result;
         }

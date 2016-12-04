@@ -61,7 +61,7 @@ namespace AlgebraSystem {
             return this.Evaluate(new List<string>());
         }
         public TermNew Evaluate(string args) {
-            List<string> argsList = Parser.CssToList(args);
+            List<string> argsList = Parser.ScsvToList(args);
             return this.Evaluate(argsList);
         }
     }

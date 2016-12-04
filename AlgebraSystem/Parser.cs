@@ -7,11 +7,17 @@ using System.Threading.Tasks;
 namespace AlgebraSystem {
     public class Parser {
 
-        static string specials = @"!@#$%^&*-+=<>/\:~|?";
+        static string specials = @"!@#$%^&*-+=<>/\:~|?,";
 
         // ----- Helper Functions -----------------------------
-        // comma-separated string "a,b,c" to List<string>
-        public static List<string> CssToList(string s) {
+        // semi-colon-separated string "a;b;c" to List<string>
+        // TODO: this is a pretty terrible idea to have to rely on this... should try to eliminate the need for it
+        // It makes dependences really hard to predict...
+        public static List<string> ScsvToList(string s) {
+            if (string.IsNullOrEmpty(s)) return new List<string>();
+            return s.Split(new char[] { ';' }).ToList();
+        }
+        public static List<string> CsvToList(string s) {
             if (string.IsNullOrEmpty(s)) return new List<string>();
             return s.Split(new char[] { ',' }).ToList();
         }
@@ -270,7 +276,7 @@ namespace AlgebraSystem {
             string treeString;
             List<string> boundTypeVars;
             if (segments.Length == 2) {
-                boundTypeVars = CssToList(segments[0]);
+                boundTypeVars = CsvToList(segments[0]);
                 foreach(var v in boundTypeVars) {
                     if (!TypeTree.IsTypeVariable(v)) throw new Exception("The following bound type varaible must start with lower case: " + v);
                 }

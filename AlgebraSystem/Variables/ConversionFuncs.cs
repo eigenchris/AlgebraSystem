@@ -15,6 +15,7 @@ namespace AlgebraSystem {
         public static ConvertMethod _IntDiv = IntDiv;
         public static ConvertMethod _IntMod = IntMod;
         public static ConvertMethod _IntPow = IntPow;
+        public static ConvertMethod _IntNeg = IntNeg;
 
         public static ConvertMethod _EQ = EQ;
         public static ConvertMethod _LT = LT;
@@ -34,35 +35,35 @@ namespace AlgebraSystem {
         }
 
         public static string IntAdd(List<string> args) {
-            if (args.Count < 2) return "";
+            if (args.Count != 2) return "";
             var pair = ParseIntPair(args);
             if (pair == null) return "";
             return (pair.Item1 + pair.Item2).ToString();
         }
 
         public static string IntSub(List<string> args) {
-            if (args.Count < 2) return "";
+            if (args.Count != 2) return "";
             var pair = ParseIntPair(args);
             if (pair == null) return "";
             return (pair.Item1 - pair.Item2).ToString();
         }
 
         public static string IntMult(List<string> args) {
-            if (args.Count < 2) return "";
+            if (args.Count != 2) return "";
             var pair = ParseIntPair(args);
             if (pair == null) return "";
             return (pair.Item1 * pair.Item2).ToString();
         }
 
         public static string IntDiv(List<string> args) {
-            if (args.Count < 2) return "";
+            if (args.Count != 2) return "";
             var pair = ParseIntPair(args);
             if (pair == null) return "";
             return (pair.Item1 / pair.Item2).ToString();
         }
 
         public static string IntMod(List<string> args) {
-            if (args.Count < 2) return "";
+            if (args.Count != 2) return "";
             var pair = ParseIntPair(args);
             if (pair == null) return "";
             if (pair.Item2 == 0) return "";
@@ -70,15 +71,23 @@ namespace AlgebraSystem {
         }
 
         public static string IntPow(List<string> args) {
-            if (args.Count < 2) return "";
+            if (args.Count != 2) return "";
             var pair = ParseIntPair(args);
             if (pair == null) return "";
             if (pair.Item2 < 0) return "";
             return IntPow(pair.Item1,(uint)pair.Item2).ToString();
         }
 
+        public static string IntNeg(List<string> args) {
+            if (args.Count != 1) return "";
+            int int1 = 0;
+            bool success1 = Int32.TryParse(args[0], out int1);
+            if (!success1) return "";
+            return (-int1).ToString();
+        }
+
         public static string EQ(List<string> args) {
-            if (args.Count < 2) return "";
+            if (args.Count != 2) return "";
             var pair = ParseIntPair(args);
             if (pair == null) return "";
             if (pair.Item2 < 0) return "";
@@ -86,7 +95,7 @@ namespace AlgebraSystem {
         }
 
         public static string LT(List<string> args) {
-            if (args.Count < 2) return "";
+            if (args.Count != 2) return "";
             var pair = ParseIntPair(args);
             if (pair == null) return "";
             if (pair.Item2 < 0) return "";
@@ -94,7 +103,7 @@ namespace AlgebraSystem {
         }
 
         public static string GT(List<string> args) {
-            if (args.Count < 2) return "";
+            if (args.Count != 2) return "";
             var pair = ParseIntPair(args);
             if (pair == null) return "";
             if (pair.Item2 < 0) return "";

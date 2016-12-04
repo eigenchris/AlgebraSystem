@@ -11,7 +11,7 @@ namespace AlgebraSystem {
 
         public TypeExpr(TypeTree t, string boundTypeVars = "") {
             this.typeTree = t;
-            this.boundTypeVars = Parser.CssToList(boundTypeVars);
+            this.boundTypeVars = Parser.ScsvToList(boundTypeVars);
         }
         public TypeExpr(string s, string boundTypeVars = "") : 
             this(new TypeTree(s), boundTypeVars) { }

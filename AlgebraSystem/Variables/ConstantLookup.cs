@@ -12,7 +12,7 @@ namespace AlgebraSystem {
         private ConstantLookup(string name, TypeExpr typeExpr, Namespace ns, string printString, Dictionary<string, string> lookup) :
             base(name, typeExpr, ns, printString) {
             this.lookup = lookup;
-            this.expectedNumberOfArgs = Parser.CssToList(lookup.Keys.First()).Count;
+            this.expectedNumberOfArgs = Parser.ScsvToList(lookup.Keys.First()).Count;
             this.compType = ComputationType.lookup; // parent constructor gets called first, so this is okay
         }
 
@@ -35,7 +35,7 @@ namespace AlgebraSystem {
             // this will allow non-primative Terms to be added to the dictionary
             var argsStringList = argsTermList.Select(t => t.ToString());
 
-            string argsString = string.Join(",", argsStringList.ToArray());
+            string argsString = string.Join(";", argsStringList.ToArray()); // TODO Join ;
             if (!this.lookup.ContainsKey(argsString)) {
                 // if it's not in the lookup, it's not a failure; we just don't evaluate and leave the expression as-is
                 //Console.WriteLine("Evaluation failed!\nInput set '"+argsString+"' isn't in the lookup.");
@@ -48,7 +48,7 @@ namespace AlgebraSystem {
         }
 
         public override TermNew Evaluate(List<string> args) {
-            string argsString = string.Join(",", args.ToArray());
+            string argsString = string.Join(";", args.ToArray());
             if (!this.lookup.ContainsKey(argsString)) {
                 // if it's not in the lookup, it's not a failure; we just don't evaluate and leave the expression as-is
                 //Console.WriteLine("Evaluation failed!\nInput set '"+argsString+"' isn't in the lookup.");
@@ -68,7 +68,7 @@ namespace AlgebraSystem {
             // validate inputs/keys 
             List<TypeTree> typeTrees = new List<TypeTree>();
             foreach (var key in d.Keys) {
-                keyList = Parser.CssToList(key);
+                keyList = Parser.ScsvToList(key);
                 for (int i = 0; i < keyList.Count; i++) {
                     string variable = keyList[i];
                     if (!ns.variableLookup.ContainsKey(variable)) {
