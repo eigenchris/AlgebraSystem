@@ -65,6 +65,7 @@ namespace AlgebraSystemTest {
             string s3 = "+ 4 -2";
             string s4 = "* 6 7";
             string s5 = "/ 12 4";
+            string s6 = "AND (> (% (* 3 5) 2) (neg (- 10 (^ 2 3)))) true";
 
             TermNew t0 = TermNew.TermFromSExpression(s0, gns);
             TermNew t1 = TermNew.TermFromSExpression(s1, gns);
@@ -72,6 +73,7 @@ namespace AlgebraSystemTest {
             TermNew t3 = TermNew.TermFromSExpression(s3, gns);
             TermNew t4 = TermNew.TermFromSExpression(s4, gns);
             TermNew t5 = TermNew.TermFromSExpression(s5, gns);
+            TermNew t6 = TermNew.TermFromSExpression(s6, gns);
 
             TermNew r0 = t0.Eval(gns);
             TermNew r1 = t1.Eval(gns);
@@ -79,6 +81,7 @@ namespace AlgebraSystemTest {
             TermNew r3 = t3.Eval(gns);
             TermNew r4 = t4.Eval(gns);
             TermNew r5 = t5.Eval(gns);
+            TermNew r6 = t6.Eval(gns);
 
             Assert.AreEqual("1", r0.value);
             Assert.AreEqual("-1", r1.value);
@@ -86,6 +89,7 @@ namespace AlgebraSystemTest {
             Assert.AreEqual("2", r3.value);
             Assert.AreEqual("42", r4.value);
             Assert.AreEqual("3", r5.value);
+            Assert.AreEqual("true", r6.value);
         }
     }
 }

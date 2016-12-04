@@ -59,6 +59,7 @@ namespace AlgebraSystem {
             if (args.Count != 2) return "";
             var pair = ParseIntPair(args);
             if (pair == null) return "";
+            if (pair.Item2 == 0) return "";
             return (pair.Item1 / pair.Item2).ToString();
         }
 
@@ -90,7 +91,6 @@ namespace AlgebraSystem {
             if (args.Count != 2) return "";
             var pair = ParseIntPair(args);
             if (pair == null) return "";
-            if (pair.Item2 < 0) return "";
             return ParseBool(pair.Item1==pair.Item2);
         }
 
@@ -98,7 +98,6 @@ namespace AlgebraSystem {
             if (args.Count != 2) return "";
             var pair = ParseIntPair(args);
             if (pair == null) return "";
-            if (pair.Item2 < 0) return "";
             return ParseBool(pair.Item1 < pair.Item2);
         }
 
@@ -106,7 +105,6 @@ namespace AlgebraSystem {
             if (args.Count != 2) return "";
             var pair = ParseIntPair(args);
             if (pair == null) return "";
-            if (pair.Item2 < 0) return "";
             return ParseBool(pair.Item1 > pair.Item2);
         }
 
