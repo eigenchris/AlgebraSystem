@@ -247,7 +247,7 @@ namespace AlgebraSystem {
             TypeTree typeTree = TypeTree.TypeTreeFromTreeList(treeList);
             TypeExpr typeExpr = new TypeExpr(typeTree, boundTypeVars);
 
-            this.variableLookup.Add(name, new ConstantExpression(name, typeExpr, this, expression, boundVars));
+            this.variableLookup.Add(name, new ConstantExpression(name, typeExpr, this, expressionNS, expression, boundVars));
 
             return true;
         }

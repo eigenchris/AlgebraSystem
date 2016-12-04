@@ -251,8 +251,8 @@ namespace AlgebraSystem {
             var argList = new List<TermNew>();
             while(!currentTerm.IsLeaf()) {
                 TermNew arg = currentTerm.right.Eval(ns);
-                if (arg == null) return null; // not enough args to eval (ConstantLookup or ConstantConversion)
-                argList.Add(arg);
+                if (arg == null) argList.Add(currentTerm.right.DeepCopy()); // not enough args to eval/collapse; just add the tree to args as-is
+                else argList.Add(arg);
                 currentTerm = currentTerm.left;
             }
             argList.Reverse(); // put left-most argument first in the list
