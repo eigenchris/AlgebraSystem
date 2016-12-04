@@ -207,27 +207,45 @@ namespace AlgebraSystem {
             // "vars" specifies the order of the arguments which are BOUND (might also contain vars that don't appear in the expression)
             // all other variables are considered FREE
             List<string> boundVars = new HashSet<string>(Parser.ScsvToList(vars)).ToList(); // delete duplicates
+            Dictionary<string, TypeTree> namesToTypes = expression.GetNamesToTypesDictionary();
 
-            // Get a list of all used type variables
-            List<string> usedTypeVars = new List<string>();
+            // Get a list of all used type variables for variables present in the expression
+            List<string> boundTypeVars = new List<string>();
             foreach(var var in boundVars) {
-                if (expressionNS.ContainsTypeLocal(var)) {
-                    usedTypeVars.Concat(expressionNS.VariableLookup(var).typeExpr.typeTree.GetTypeVariables());
+                if (namesToTypes.ContainsKey(var)) {
+                    List<string> typeVars = namesToTypes[var].GetTypeVariables();
+                    boundTypeVars.AddRange(typeVars);
                 }
             }
+            boundTypeVars = new HashSet<string>(boundTypeVars).ToList(); // delete duplicates
+
+            // Make up type variables for variables not present in the expression
+            // variables not in the expression must be added (e.g. for "const x y = x") 
+            int idx = 0;
+            foreach (var var in boundVars) {
+                if (!namesToTypes.ContainsKey(var)) {
+                    string newTypeVar = "t" + idx.ToString();
+                    while(boundTypeVars.Contains(newTypeVar)) {
+                        idx++;
+                        newTypeVar = "t" + idx.ToString();
+                    }
+                    boundTypeVars.Add(newTypeVar);
+                    namesToTypes.Add(var, TypeTree.MakePrimitiveTree(newTypeVar));
+                    idx++;
+                }
+            }
+
             // Get overall type tree
             List<TypeTree> treeList = new List<TypeTree>();
             foreach (var var in boundVars) {
-                // variables not in the expression must be added (e.g. for "const x y = x") 
-                if (!expressionNS.ContainsVariableLocal(var)) {
-                    string typeVar = TypeTree.AddPrime("a", usedTypeVars);
-                    expressionNS.AddVariable(var, typeVar);
-                }
-                treeList.Add(expressionNS.VariableLookup(var).typeExpr.typeTree);
+                TypeTree tTree = namesToTypes[var];
+                TypeExpr tExpr = new TypeExpr(tTree,tTree.GetTypeVariables());
+                expressionNS.AddVariable(var, tExpr);
+                treeList.Add(tTree);
             }
             treeList.Add(expression.typeTree);
             TypeTree typeTree = TypeTree.TypeTreeFromTreeList(treeList);
-            TypeExpr typeExpr = new TypeExpr(typeTree);
+            TypeExpr typeExpr = new TypeExpr(typeTree, boundTypeVars);
 
             this.variableLookup.Add(name, new ConstantExpression(name, typeExpr, this, expression, boundVars));
 
@@ -377,10 +395,10 @@ namespace AlgebraSystem {
             ///// STANDARD POLYMORPHIC FUNCTIONS ///////////////
             // creates namespaces 1-5
             gns.AddConstantExpression("id", "x", "x");
-            gns.AddConstantExpression("apply", "f x", "f,x");
-            gns.AddConstantExpression("const", "x", "x,y");
-            gns.AddConstantExpression("cmp", "f (g x)", "f,g,x");
-            gns.AddConstantExpression("homo", "op (f x) (f y)", "op,f,x,y");
+            gns.AddConstantExpression("apply", "f x", "f;x");
+            gns.AddConstantExpression("const", "x", "x;y");
+            gns.AddConstantExpression("cmp", "f (g x)", "f;g;x");
+            gns.AddConstantExpression("homo", "op (f x) (f y)", "op;f;x;y");
 
             return gns;
         }

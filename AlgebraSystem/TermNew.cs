@@ -264,6 +264,18 @@ namespace AlgebraSystem {
             return result;
         }
 
+        // ----- Get Variable Types ---------------------------
+        public Dictionary<string, TypeTree> GetNamesToTypesDictionary(Dictionary<string, TypeTree> namesToTypes= null) {
+            namesToTypes = namesToTypes ?? new Dictionary<string, TypeTree>();
+            if (this.IsLeaf()) {
+                if (!namesToTypes.ContainsKey(this.value)) namesToTypes.Add(this.value, this.typeTree);
+            } else {
+                this.left.GetNamesToTypesDictionary(namesToTypes);
+                this.right.GetNamesToTypesDictionary(namesToTypes);
+            }
+            return namesToTypes;
+        }
+
 
 
     }

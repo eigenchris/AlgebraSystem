@@ -91,5 +91,37 @@ namespace AlgebraSystemTest {
             Assert.AreEqual("3", r5.value);
             Assert.AreEqual("true", r6.value);
         }
+
+
+        [TestMethod]
+        public void ConstantExpression_StandardTermEvals() {
+            var gns = Namespace.CreateGlobalNs();
+
+            string s0 = "id 1";
+            string s1 = "const 1 true";
+            string s2 = "cmp neg neg 1";
+            string s3 = "apply neg -1";
+            string s4 = "homo * neg 1";
+            
+            TermNew t0 = TermNew.TermFromSExpression(s0, gns);
+            TermNew t1 = TermNew.TermFromSExpression(s1, gns);
+            TermNew t2 = TermNew.TermFromSExpression(s2, gns);
+            TermNew t3 = TermNew.TermFromSExpression(s3, gns);
+            TermNew t4 = TermNew.TermFromSExpression(s4, gns);
+
+            TermNew r0 = t0.Eval(gns);
+            //TermNew r1 = t1.Eval(gns);
+            TermNew r2 = t2.Eval(gns);
+            TermNew r3 = t3.Eval(gns);
+            TermNew r4 = t4.Eval(gns);
+
+            Assert.AreEqual("1", r0.value);
+            //Assert.AreEqual("1", r1.value);
+            Assert.AreEqual("1", r2.value);
+            Assert.AreEqual("1", r3.value);
+            Assert.AreEqual("1", r4.value);
+        }
+
+
     }
 }
