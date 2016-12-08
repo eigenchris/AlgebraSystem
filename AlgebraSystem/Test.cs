@@ -137,13 +137,13 @@ namespace AlgebraSystem {
         
         public static void TreeTransformations() {
 
-            Term t1 = Term.TermFromSExpression("AND (f x) (f y)", gns);
-            Term t2 = Term.TermFromSExpression("f (OR x y)", gns);
+            TermNew t1 = TermNew.TermFromSExpression("AND (f x) (f y)", gns);
+            TermNew t2 = TermNew.TermFromSExpression("f (OR x y)", gns);
 
             TreeTransformation tt = new TreeTransformation(t1, t2);
-            Term nBefore = Term.TermFromSExpression("AND (NOT true) (NOT false)", gns);
-            Term nAfter = tt.TransformLeft(nBefore); // lots of unequal namespaces here...
-            Term nAfterAfter = tt.TransformRight(nAfter);
+            TermNew nBefore = TermNew.TermFromSExpression("AND (NOT true) (NOT false)", gns);
+            TermNew nAfter = tt.TransformLeft(nBefore); // lots of unequal namespaces here...
+            TermNew nAfterAfter = tt.TransformRight(nAfter);
 
             Console.WriteLine(nBefore);
             Console.WriteLine(nAfter);
@@ -151,11 +151,11 @@ namespace AlgebraSystem {
             Console.WriteLine();
 
 
-            Term t11 = Term.TermFromSExpression("op1 z (op2 x y) ", gns);
-            Term t22 = Term.TermFromSExpression("op2 (op1 z x) (op1 z y)", gns);
+            TermNew t11 = TermNew.TermFromSExpression("op1 z (op2 x y) ", gns);
+            TermNew t22 = TermNew.TermFromSExpression("op2 (op1 z x) (op1 z y)", gns);
             TreeTransformation ss = new TreeTransformation(t11, t22);
 
-            nBefore = Term.TermFromSExpression("AND true (OR false true)", gns);
+            nBefore = TermNew.TermFromSExpression("AND true (OR false true)", gns);
             nAfter = ss.TransformLeft(nBefore);
             nAfterAfter = ss.TransformRight(nAfter);
 

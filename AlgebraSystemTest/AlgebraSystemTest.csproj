@@ -54,6 +54,7 @@
     <Compile Include="TermNewTest.cs" />
     <Compile Include="NamespaceTest.cs" />
     <Compile Include="TypeExprTest.cs" />
+    <Compile Include="TreeTransformationTest.cs" />
     <Compile Include="TypeTreeTest.cs" />
     <Compile Include="SExpressionTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

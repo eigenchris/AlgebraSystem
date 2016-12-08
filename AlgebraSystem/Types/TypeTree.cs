@@ -273,7 +273,6 @@ namespace AlgebraSystem {
                     t2.ReplaceName(typeVar, newTypeVar);
                 }
             }
-
             return t2;
         }
 

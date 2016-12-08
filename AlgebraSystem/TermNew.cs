@@ -69,7 +69,19 @@ namespace AlgebraSystem {
             return this.left == null;
         }
 
-
+        public TermNew Substitute(string subVar, TermNew subTree) {
+            if (this.IsLeaf()) {
+                if (this.value == subVar) {
+                    return subTree.DeepCopy();
+                } else {
+                    return TermNew.MakePrimitiveTree(this.value, this.typeTree);
+                }
+            } else {
+                TermNew leftSub = this.left.Substitute(subVar, subTree);
+                TermNew rightSub = this.right.Substitute(subVar, subTree);
+                return new TermNew(leftSub, rightSub, leftSub.typeTree.GetRight());
+            }
+        }
         public TermNew Substitute(Dictionary<string, TermNew> subs) {
             if (subs == null || !subs.Any()) return this.DeepCopy();
 
@@ -90,6 +102,78 @@ namespace AlgebraSystem {
         }
 
 
+        // ----- Helper Methods -------------------------------
+        public List<string> GetSymbols(List<string> vars = null) {
+            vars = vars ?? new List<string>();
+
+            if (this.IsLeaf()) {
+                string val = this.value;
+                if (TypeTree.IsTypeVariable(val) && !vars.Contains(val)) {
+                    vars.Add(val);
+                }
+            } else {
+                this.left.GetSymbols(vars);
+                this.right.GetSymbols(vars);
+            }
+
+            return vars;
+        }
+
+        public TermNew MakeSymbolsUnique(TermNew usedSymbolsTree) {
+            TermNew newTerm = this.DeepCopy();
+
+            List<string> usedSymbols = usedSymbolsTree.GetSymbols();
+            List<string> existingSymbols = this.GetSymbols();
+            List<string> allSymbols = new List<string>(usedSymbols.Concat(existingSymbols));
+            foreach (var sym in existingSymbols) {
+                if (usedSymbols.Contains(sym)) {
+                    string newVar = TypeTree.AddPrime(sym, allSymbols);
+                    newTerm.ReplaceName(sym, newVar);
+                }
+            }
+            return newTerm;
+        }
+
+
+        // keep adding the ' character to a type variable until it is unique
+        public static string AddPrime(string s, List<string> typeVars) {
+            while (typeVars.Contains(s)) {
+                s += "'";
+            }
+            return s;
+        }
+        public TermNew AddPrime(List<string> usedTypeVars) {
+            TermNew t2 = this.DeepCopy();
+            List<string> treeTypeVars = this.GetSymbols();
+            foreach (var typeVar in usedTypeVars) {
+                if (treeTypeVars.Contains(typeVar)) {
+                    string newTypeVar = AddPrime(typeVar, usedTypeVars);
+                    t2.ReplaceName(typeVar, newTypeVar);
+                }
+            }
+            return t2;
+        }
+
+        public void ReplaceName(string oldName, string newName) {
+            if (this.IsLeaf()) {
+                if (this.value == oldName) {
+                    this.value = newName;
+                }
+            } else {
+                this.left.ReplaceName(oldName, newName);
+                this.right.ReplaceName(oldName, newName);
+            }
+        }
+        public void ReplaceNames(Dictionary<string, string> subs) {
+            if (this.IsLeaf()) {
+                if (subs.ContainsKey(this.value)) {
+                    this.value = subs[this.value];
+                }
+            } else {
+                this.left.ReplaceNames(subs);
+                this.right.ReplaceNames(subs);
+            }
+        }
 
         // ----- Parsing and conversion To/From other datatypes ---------
         public override string ToString() {
@@ -277,6 +361,61 @@ namespace AlgebraSystem {
         }
 
 
+        // ----- Unification -------------------------------
+        public static Dictionary<string, TermNew> UnifyAndSolve(TermNew t1, TermNew t2, Dictionary<string, TermNew> subs = null) {
+            if (t1 == null || t2 == null) return null;
+            subs = subs ?? new Dictionary<string, TermNew>();
+
+            subs = UnifyOneDirection(t1, t2, subs);
+            if (subs == null) return null;
+
+            SolveMappings(subs);
+            return subs;
+        }
+
+        // returns a dictionary "subs" such that t1.Substitute(subs) == t2.Substitute(subs)
+        public static Dictionary<string, TermNew> UnifyOneDirection(TermNew t1, TermNew t2withVars, Dictionary<string, TermNew> subs = null) {
+            subs = subs ?? new Dictionary<string, TermNew>();
+
+            if (!t1.IsLeaf() && !t2withVars.IsLeaf()) {
+                var success1 = UnifyOneDirection(t1.left, t2withVars.left, subs);
+                if (success1 == null) return null;
+                var success2 = UnifyOneDirection(t1.right, t2withVars.right, subs);
+                if (success2 == null) return null;
+            } else if (t2withVars.IsLeaf()) {
+                if (!subs.ContainsKey(t2withVars.value)) {
+                    subs.Add(t2withVars.value, t1.DeepCopy());
+                } else {
+                    var success = UnifyOneDirection(subs[t2withVars.value], t1, subs);   // If a type var matches two different subtrees, unify them
+                    if (success == null) return null;
+                }
+            } else if (!t1.DeepEquals(t2withVars)) {
+                Console.WriteLine("Error in Unify:");
+                Console.WriteLine("Value " + t1 + " does not match " + t2withVars);
+                return null;
+            }
+
+            return subs;
+        }
+
+        // if a: Bool, and b: a, we need to make sure that b: Bool as well
+        // substitution should only be applied once to unify expressions
+        public static void SolveMappings(Dictionary<string, TermNew> subs) {
+            TermNew tempTree = new TermNew();
+            foreach (var key in subs.Keys.ToList()) {
+                tempTree = subs[key];
+                foreach (var key2 in subs.Keys.ToList()) {
+                    if (key == key2) continue;
+                    subs[key2] = subs[key2].Substitute(key, tempTree);
+                }
+            }
+            // remove loops
+            foreach (var key in subs.Keys.ToList()) {
+                if (subs[key].IsLeaf() && key == subs[key].value) {
+                    subs.Remove(key);
+                }
+            }
+        }
 
     }
 }
