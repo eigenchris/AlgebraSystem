@@ -89,6 +89,28 @@ namespace AlgebraSystem {
             return this.left.DeepEquals(t.left) && this.right.DeepEquals(t.right);
         }
 
+        public bool AlphaEquivalent(TypeTree t, Dictionary<string,string> typeVarEquivalencies = null) {
+            typeVarEquivalencies = typeVarEquivalencies ?? new Dictionary<string, string>();
+
+            if (this.left == null ^ t.left == null) return false;
+            if (this.right == null ^ t.right == null) return false;
+            if (this.left == null && this.right == null && t.left == null && t.right == null) {
+                if(TypeTree.IsTypeVariable(this.value) &&  TypeTree.IsTypeVariable(t.value)) {
+                    if (typeVarEquivalencies.ContainsKey(this.value)) {
+                        return typeVarEquivalencies[this.value] == t.value;
+                    } else if (typeVarEquivalencies.ContainsValue(t.value)) {
+                        return false;
+                    } else {
+                        typeVarEquivalencies.Add(this.value, t.value);
+                        return true;
+                    }
+                }
+                return this.value == t.value;
+            }
+            return this.left.AlphaEquivalent(t.left, typeVarEquivalencies) 
+                && this.right.AlphaEquivalent(t.right, typeVarEquivalencies);
+        }
+
         // ----- Instance of -------------------------------
         public bool InstanceOf(TypeTree generalTree, List<string> boundVars, Dictionary<string, TypeTree> subs = null) {
             subs = subs ?? new Dictionary<string, TypeTree>();

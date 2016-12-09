@@ -9,7 +9,7 @@ namespace UnitTestProject1 {
     public class TreeTransformationTest {
 
         [TestMethod]
-        public void TreeTransformation_DeMorgansLawTest() {
+        public void TreeTransformationFactory_DeMorgansLawTest() {
             // Arrange
             Namespace gns = Namespace.CreateGlobalNs();
 
@@ -20,7 +20,7 @@ namespace UnitTestProject1 {
             TermNew expectedRight = TermNew.TermFromSExpression("NOT (OR true false)", gns);
 
             // Act
-            TreeTransformation tt = new TreeTransformation(t1, t2);
+            TreeTransformation tt = TreeTransformationFactory.Make(t1, t2, gns);
             TermNew actualRight = tt.TransformLeft(expectedLeft);
             TermNew actualLeft = tt.TransformRight(actualRight);
 
@@ -28,6 +28,6 @@ namespace UnitTestProject1 {
             Assert.IsTrue(expectedLeft.DeepEquals(actualLeft));
             Assert.IsTrue(expectedRight.DeepEquals(actualRight));
         }
-     
+
     }
 }
