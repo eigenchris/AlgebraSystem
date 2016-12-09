@@ -15,6 +15,7 @@ namespace UnitTestProject1 {
 
             TermNew t1 = TermNew.TermFromSExpression("AND (f x) (f y)", gns);
             TermNew t2 = TermNew.TermFromSExpression("f (OR x y)", gns);
+            var vars = new List<string>() { "f","x","y"};
 
             TermNew expectedLeft = TermNew.TermFromSExpression("AND (NOT true) (NOT false)", gns);
             TermNew expectedRight = TermNew.TermFromSExpression("NOT (OR true false)", gns);
@@ -28,6 +29,27 @@ namespace UnitTestProject1 {
             Assert.IsTrue(expectedLeft.DeepEquals(actualLeft));
             Assert.IsTrue(expectedRight.DeepEquals(actualRight));
         }
-     
+
+        [TestMethod]
+        public void TreeTransformationFactory_DeMorgansLawTest() {
+            // Arrange
+            Namespace gns = Namespace.CreateGlobalNs();
+
+            TermNew t1 = TermNew.TermFromSExpression("AND (f x) (f y)", gns);
+            TermNew t2 = TermNew.TermFromSExpression("f (OR x y)", gns);
+
+            TermNew expectedLeft = TermNew.TermFromSExpression("AND (NOT true) (NOT false)", gns);
+            TermNew expectedRight = TermNew.TermFromSExpression("NOT (OR true false)", gns);
+
+            // Act
+            TreeTransformation tt = TreeTransformationFactory.Make(t1, t2, gns);
+            TermNew actualRight = tt.TransformLeft(expectedLeft);
+            TermNew actualLeft = tt.TransformRight(actualRight);
+
+            // Assert
+            Assert.IsTrue(expectedLeft.DeepEquals(actualLeft));
+            Assert.IsTrue(expectedRight.DeepEquals(actualRight));
+        }
+
     }
 }

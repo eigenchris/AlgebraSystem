@@ -1,23 +1,41 @@
 ﻿
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AlgebraSystem {
     public class TreeTransformation {
         private TermNew t1;
         private TermNew t2;
+        private Dictionary<string, TypeTree> varsToTypes;
 
-        public TreeTransformation(TermNew t1, TermNew t2) {
+        public TreeTransformation(TermNew t1, TermNew t2, Dictionary<string,TypeTree> varsToTypes = null) {
             this.t1 = t1;
             this.t2 = t2;
+            this.varsToTypes = varsToTypes;
         }
+
 
         private TermNew Transform(TermNew t, TermNew tFrom, TermNew tTo) {
             TermNew tFromCopy = tFrom.MakeSymbolsUnique(t);
 
-            Dictionary<string, TermNew> subs = TermNew.UnifyOneDirection(t, tFromCopy);
+            var varsToTypesActual = new Dictionary<string, TypeTree>();
+            Dictionary<string, TermNew> subs = TermNew.UnifyOneDirection(t, tFromCopy, this.varsToTypes?.Keys.ToList(), varsToTypesActual);
             if (subs == null) return null;
 
-            // no type-checking is done here... this should be done by the transformation factory
+            // Ensure all the TreeTransformation variables have values to take on
+            var varsToTypesCopy = new Dictionary<string, TypeTree>();
+            foreach(var key in this.varsToTypes.Keys) {
+                if (!subs.ContainsKey(key)) return null;
+                varsToTypesCopy.Add(key, this.varsToTypes[key]);
+            }
+
+            // Ensure types of these variables match expected
+            var typesDictionary = new Dictionary<string, TypeTree>();
+            foreach(var key in this.varsToTypes.Keys) {
+                typesDictionary = TypeTree.UnifyAndSolve(this.varsToTypes[key], varsToTypesActual[key], typesDictionary);
+                if (typesDictionary == null) return null;
+            }
+
 
             // terms in "subs" have the namespace of the input term "t"
             // the "tToSubbed" term will have the same namespace as the input term "t"

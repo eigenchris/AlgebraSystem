@@ -365,8 +365,9 @@ namespace AlgebraSystem {
         public static Dictionary<string, TermNew> UnifyAndSolve(TermNew t1, TermNew t2, Dictionary<string, TermNew> subs = null) {
             if (t1 == null || t2 == null) return null;
             subs = subs ?? new Dictionary<string, TermNew>();
+            var varsToTypes = new Dictionary<string, TypeTree>();
 
-            subs = UnifyOneDirection(t1, t2, subs);
+            subs = UnifyOneDirection(t1, t2, new List<string>(), varsToTypes, subs);
             if (subs == null) return null;
 
             SolveMappings(subs);
@@ -374,22 +375,24 @@ namespace AlgebraSystem {
         }
 
         // returns a dictionary "subs" such that t1.Substitute(subs) == t2.Substitute(subs)
-        public static Dictionary<string, TermNew> UnifyOneDirection(TermNew t1, TermNew t2withVars, Dictionary<string, TermNew> subs = null) {
+        public static Dictionary<string, TermNew> UnifyOneDirection(TermNew t1, TermNew t2withVars, List<string> vars, Dictionary<string, TypeTree> varTypeLookup, Dictionary<string, TermNew> subs = null) {
+            vars = vars ?? new List<string>();
             subs = subs ?? new Dictionary<string, TermNew>();
 
             if (!t1.IsLeaf() && !t2withVars.IsLeaf()) {
-                var success1 = UnifyOneDirection(t1.left, t2withVars.left, subs);
+                var success1 = UnifyOneDirection(t1.left, t2withVars.left, vars, varTypeLookup, subs);
                 if (success1 == null) return null;
-                var success2 = UnifyOneDirection(t1.right, t2withVars.right, subs);
+                var success2 = UnifyOneDirection(t1.right, t2withVars.right, vars, varTypeLookup, subs);
                 if (success2 == null) return null;
-            } else if (t2withVars.IsLeaf()) {
+            } else if (t2withVars.IsLeaf() && vars.Contains(t2withVars.value)) {
                 if (!subs.ContainsKey(t2withVars.value)) {
                     subs.Add(t2withVars.value, t1.DeepCopy());
+                    varTypeLookup.Add(t2withVars.value, t1.typeTree);
                 } else {
-                    var success = UnifyOneDirection(subs[t2withVars.value], t1, subs);   // If a type var matches two different subtrees, unify them
+                    var success = UnifyOneDirection(subs[t2withVars.value], t1, vars, varTypeLookup, subs);   // If a type var matches two different subtrees, unify them
                     if (success == null) return null;
                 }
-            } else if (!t1.DeepEquals(t2withVars)) {
+            } else if (!t1.DeepEquals(t2withVars) && vars.Contains(t2withVars.value)) {
                 Console.WriteLine("Error in Unify:");
                 Console.WriteLine("Value " + t1 + " does not match " + t2withVars);
                 return null;
