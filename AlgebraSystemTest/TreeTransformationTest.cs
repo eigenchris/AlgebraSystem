@@ -29,5 +29,27 @@ namespace UnitTestProject1 {
             Assert.IsTrue(expectedRight.DeepEquals(actualRight));
         }
 
+
+        [TestMethod]
+        public void TreeTransformationFactory_ExponentLawTest() {
+            // Arrange
+            Namespace gns = Namespace.CreateGlobalNs();
+
+            TermNew t1 = TermNew.TermFromSExpression("* (^ b x) (^ b y)", gns);
+            TermNew t2 = TermNew.TermFromSExpression("^ b (+ x y)", gns);
+
+            TermNew expectedLeft = TermNew.TermFromSExpression("* (^ 2 6) (^ 2 4)", gns);
+            TermNew expectedRight = TermNew.TermFromSExpression("^ 2 (+ 6 4)", gns);
+
+            // Act
+            TreeTransformation tt = TreeTransformationFactory.Make(t1, t2, gns);
+            TermNew actualRight = tt.TransformLeft(expectedLeft);
+            TermNew actualLeft = tt.TransformRight(actualRight);
+
+            // Assert
+            Assert.IsTrue(expectedLeft.DeepEquals(actualLeft));
+            Assert.IsTrue(expectedRight.DeepEquals(actualRight));
+        }
+
     }
 }
