@@ -396,18 +396,18 @@ namespace AlgebraSystem {
         }
 
 
-        public static TypeTree ParseTypeTree(string s) {
-            bool balanced = CheckBalancedParens(s);
-            if (!balanced) throw new Exception("Parentheses not balanced!");
-            return ParseTypeTreeRecur(s, 0, s.Length - 1);
-        }
-
         public static string ParseSymbol(string s, int start, string symbol) {
-            if (start + symbol.Length > s.Length - 1) return null;
+            if (start + symbol.Length > s.Length) return null;
             for (int i = 0; i < symbol.Length; i++) {
                 if (s[start + i] != symbol[i]) return null;
             }
             return symbol;
+        }
+
+        public static TypeTree ParseTypeTree(string s) {
+            bool balanced = CheckBalancedParens(s);
+            if (!balanced) throw new Exception("Parentheses not balanced!");
+            return ParseTypeTreeRecur(s, 0, s.Length - 1);
         }
 
         public static TypeTree ParseTypeTreeRecur(string s, int left, int right, TypeTree leftGraftTree = null) {
@@ -467,6 +467,67 @@ namespace AlgebraSystem {
                 leftGraftTree = new TypeTree(leftGraftTree, rightSubTree);
             }
             return ParseTypeTreeRecur(s, afterEnd, right, leftGraftTree);
+        }
+
+        public static KindTree ParseKindTree(string s) {
+            bool balanced = CheckBalancedParens(s);
+            if (!balanced) throw new Exception("Parentheses not balanced!");
+            return ParseKindTreeRecur(s, 0, s.Length - 1);
+        }
+
+        public static KindTree ParseKindTreeRecur(string s, int left, int right, KindTree leftGraftTree = null) {
+            // trim spaces on either end of string and check for crossover between left and right bounds
+            if (left > right) throw new Exception("Parentheses not balanced!");
+            while (s[left] == ' ') left++;
+            while (s[right] == ' ') right--;
+            if (left > right) throw new Exception("Parentheses not balanced!");
+
+            KindTree kTree;
+            int afterEnd; // index after the leftmost sub-expression
+            if (s[left] == '(') { // case of a subexpression (...)
+                int end = GetIndexOfEndParen(s, left + 1);
+                kTree = ParseKindTreeRecur(s, left + 1, end - 1);
+                afterEnd = end + 1;
+            } else { // case of parsing a single identifier
+                if (ParseSymbol(s, left, "*")==null) throw new Exception("Not a valid Identifier!");
+                kTree = KindTree.MakePrimitiveTree("*");
+                afterEnd = left + 1;
+            }
+
+            // if we've reached the end of the subexpression, just return what we have
+            if (afterEnd > right) {
+                if (leftGraftTree == null) {
+                    return kTree;
+                }
+                return new KindTree(leftGraftTree, kTree);
+            }
+
+            // clean up spaces
+            afterEnd += Spaces(s, afterEnd);
+
+            // check for the special cases of the operator ->
+            string symbol = ParseSymbol(s, afterEnd, "->");
+            if (symbol != null) {
+                var symbolTree = KindTree.MakePrimitiveTree(symbol);
+                var firstArgTree = new KindTree(symbolTree, kTree);
+                afterEnd += symbol.Length;
+                afterEnd += Spaces(s, afterEnd);
+                var secondArgTree = ParseKindTreeRecur(s, afterEnd, right);
+                var rightTree = new KindTree(firstArgTree, secondArgTree);
+
+                if (leftGraftTree == null) return rightTree;
+                return new KindTree(leftGraftTree, rightTree);
+            }
+
+            // otherwise, take what we have and make it the left child of a node
+            // and out the stuff we'll see in the future in the right child of that node
+            KindTree rightSubTree = kTree;
+            if (leftGraftTree == null) {
+                leftGraftTree = rightSubTree;
+            } else {
+                leftGraftTree = new KindTree(leftGraftTree, rightSubTree);
+            }
+            return ParseKindTreeRecur(s, afterEnd, right, leftGraftTree);
         }
 
 

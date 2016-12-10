@@ -341,6 +341,10 @@ namespace AlgebraSystem {
             gns.AddTypeSet(",");
 
             ///// BOOLEANS ///////////////
+            gns.AddTypeSet("RGB");
+            gns.AddConstantPrimitive("red;green;blue;", "RGB");
+
+            ///// BOOLEANS ///////////////
             gns.AddTypeSet("Bool");
             gns.AddConstantPrimitive("true;false", "Bool");
 
