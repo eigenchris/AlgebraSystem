@@ -59,7 +59,10 @@ namespace AlgebraSystem {
         }
         */
 
-         
+        public override string ToString() {
+            return this.t1 + " <=> " + this.t2;
+        }
+
 
 
     }

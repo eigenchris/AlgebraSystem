@@ -5,6 +5,7 @@ namespace AlgebraSystem {
     public static class TreeTransformationFactory {
 
         public static TreeTransformation Make(TermNew tFrom, TermNew tTo, Namespace ns) {
+            if (tFrom == null || tTo == null || ns == null) return null;
             Dictionary<string,TypeTree> tFromN2T = tFrom.GetNamesToTypesDictionary();
             Dictionary<string,TypeTree> tToN2T = tFrom.GetNamesToTypesDictionary();
 
@@ -25,6 +26,16 @@ namespace AlgebraSystem {
             }
             
             return new TreeTransformation(tFrom, tTo, varsN2T);
+        }
+
+        public static TreeTransformation MakeHomomorphism(string f, string op1, string op2, Namespace ns) {
+            string sFrom = $"{op1} ({f} x) ({f} y)";
+            string sTo = $"{f} ({op2} x y)";
+
+            TermNew tFrom = TermNew.TermFromSExpression(sFrom, ns);
+            TermNew tTo = TermNew.TermFromSExpression(sTo, ns);
+
+            return TreeTransformationFactory.Make(tFrom, tTo, ns);
         }
 
     }

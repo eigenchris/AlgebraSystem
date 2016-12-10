@@ -9,7 +9,7 @@ namespace UnitTestProject1 {
     public class TreeTransformationTest {
 
         [TestMethod]
-        public void TreeTransformationFactory_DeMorgansLawTest() {
+        public void TreeTransformationFactory_Make_DeMorgansLawTest() {
             // Arrange
             Namespace gns = Namespace.CreateGlobalNs();
 
@@ -31,7 +31,7 @@ namespace UnitTestProject1 {
 
 
         [TestMethod]
-        public void TreeTransformationFactory_ExponentLawTest() {
+        public void TreeTransformationFactory_MakeHomomorphism_ExponentLawTest() {
             // Arrange
             Namespace gns = Namespace.CreateGlobalNs();
 
@@ -42,7 +42,7 @@ namespace UnitTestProject1 {
             TermNew expectedRight = TermNew.TermFromSExpression("^ 2 (+ 6 4)", gns);
 
             // Act
-            TreeTransformation tt = TreeTransformationFactory.Make(t1, t2, gns);
+            TreeTransformation tt = TreeTransformationFactory.MakeHomomorphism("^ b", "*", "+", gns);
             TermNew actualRight = tt.TransformLeft(expectedLeft);
             TermNew actualLeft = tt.TransformRight(actualRight);
 
