@@ -506,7 +506,7 @@ namespace AlgebraSystem {
             afterEnd += Spaces(s, afterEnd);
 
             // check for the special cases of the operator ->
-            string symbol = ParseSymbol(s, afterEnd, "->");
+            string symbol = ParseSymbol(s, afterEnd, "=>");
             if (symbol != null) {
                 var symbolTree = KindTree.MakePrimitiveTree(symbol);
                 var firstArgTree = new KindTree(symbolTree, kTree);

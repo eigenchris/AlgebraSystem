@@ -48,7 +48,7 @@ namespace AlgebraSystem {
         public KindTree GetRight() { return this.right; }
 
         public KindTree(KindTree l, KindTree r, bool flagToUseArrow) {
-            KindTree ctree = KindTree.MakePrimitiveTree("->");
+            KindTree ctree = KindTree.MakePrimitiveTree("=>");
             KindTree temp = new KindTree(ctree, l);
             this.SetChildren(temp, r);
         }
@@ -127,13 +127,12 @@ namespace AlgebraSystem {
         }
 
         // ----- Parsing and conversion To/From other datatypes ---------
-        // display a TypeTree as (Bool -> (Bool -> Bool)), for example
         public override string ToString() {
             if (this.IsLeaf()) {
                 return this.value;
             } else {
                 string symbol = this.left?.left?.value;
-                if (symbol == "->") {
+                if (symbol == "=>") {
                     if(this.left.right.value==null) {
                         return $"({this.left.right}) {symbol} {this.right}";
                     }

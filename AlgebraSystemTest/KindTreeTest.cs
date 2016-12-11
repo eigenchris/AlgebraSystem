@@ -12,9 +12,9 @@ namespace UnitTestProject1 {
         public void KindTreeTest_DeepEqualsTest() {
             // Arrange
             var t1 = Parser.ParseKindTree("*");
-            var t2 = Parser.ParseKindTree("* -> *");
-            var t3 = Parser.ParseKindTree("* -> * -> *");
-            var t4 = Parser.ParseKindTree("(* -> *) -> *");
+            var t2 = Parser.ParseKindTree("* => *");
+            var t3 = Parser.ParseKindTree("* => * => *");
+            var t4 = Parser.ParseKindTree("(* => *) => *");
 
             // Act & Assert
             Assert.IsTrue(t1.DeepEquals(t1));
