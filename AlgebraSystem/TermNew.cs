@@ -261,7 +261,7 @@ namespace AlgebraSystem {
             var t = TypeTree.MakePrimitiveTree(eTypeVar);
 
             // Unify (t0, t1->t) and get the resulting type t
-            var t1_to_t = new TypeTree(t1, t, TypeConstructor.Function);
+            var t1_to_t = new TypeTree(t1, t, TypeConstructorEnum.Function);
             equations.Add(new Tuple<TypeTree, TypeTree>(t0, t1_to_t));
 
             return t;

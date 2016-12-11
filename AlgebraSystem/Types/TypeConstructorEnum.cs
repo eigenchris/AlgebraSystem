@@ -1,6 +1,6 @@
 ﻿
 namespace AlgebraSystem {
-    public enum TypeConstructor {
+    public enum TypeConstructorEnum {
         Function,
         Sum,
         Pair

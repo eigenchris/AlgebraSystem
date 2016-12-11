@@ -37,6 +37,17 @@ namespace AlgebraSystem {
             temp.value = s;
             return temp;
         }
+        public static KindTree MakeSimpleTreeOfLength(int n) {
+            KindTree baseTree = KindTree.MakePrimitiveTree("*");
+            n--;
+            while(n>0) {
+                KindTree star = KindTree.MakePrimitiveTree("*");
+                KindTree arrow = KindTree.MakePrimitiveTree("=>");
+                var graft = new KindTree(arrow, star);
+                baseTree = new KindTree(graft, baseTree);
+            }
+            return baseTree;
+        }
 
         // Getting is normal, but setting should set the string to empty
         public void SetChildren(KindTree l, KindTree r) {

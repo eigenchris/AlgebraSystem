@@ -47,10 +47,10 @@ namespace AlgebraSystem {
         public TypeTree GetLeft() { return this.left; }
         public TypeTree GetRight() { return this.right; }
 
-        public TypeTree(TypeTree l, TypeTree r, TypeConstructor c) {
+        public TypeTree(TypeTree l, TypeTree r, TypeConstructorEnum c) {
             string cstring;
-            if (c == TypeConstructor.Function) cstring = "->";
-            else if (c == TypeConstructor.Sum) cstring = "|";
+            if (c == TypeConstructorEnum.Function) cstring = "->";
+            else if (c == TypeConstructorEnum.Sum) cstring = "|";
             else cstring = ",";
             TypeTree ctree = TypeTree.MakePrimitiveTree(cstring);
 
@@ -411,7 +411,7 @@ namespace AlgebraSystem {
             TypeTree tree = treeList[treeList.Count - 1].DeepCopy();
             for (int i = treeList.Count - 2; i >= 0; i--) {
                 //tree.SetChildren(treeList[i].DeepCopy(), tree.DeepCopy());
-                tree = new TypeTree(treeList[i].DeepCopy(), tree.DeepCopy(), TypeConstructor.Function);
+                tree = new TypeTree(treeList[i].DeepCopy(), tree.DeepCopy(), TypeConstructorEnum.Function);
             }
             return tree;
         }
