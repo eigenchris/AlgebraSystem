@@ -117,7 +117,7 @@ namespace UnitTestProject1 {
                 "a1 -> b1 -> c1 -> d1 -> e1",
                 "a1 -> b1",
                 "a -> (b , c) -> d | e",
-                "f a b (c -> g x y z)",
+                "(f a b c) -> g x y z",
             };
 
             for (int i=0; i<treeTestStrings.Length; i++) {

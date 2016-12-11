@@ -439,6 +439,15 @@ namespace AlgebraSystem {
                 return new TypeTree(leftGraftTree, tTree);
             }
 
+            // Take what we have and make it the left child of a node
+            // and out the stuff we'll see in the future in the right child of that node
+            TypeTree rightSubTree = tTree;
+            if (leftGraftTree == null) {
+                leftGraftTree = rightSubTree;
+            } else {
+                leftGraftTree = new TypeTree(leftGraftTree, rightSubTree);
+            }
+
             // clean up spaces
             afterEnd += Spaces(s, afterEnd);
 
@@ -448,26 +457,58 @@ namespace AlgebraSystem {
                             ParseSymbol(s, afterEnd, "|");
             if (symbol != null) {
                 var symbolTree = TypeTree.MakePrimitiveTree(symbol);
-                var firstArgTree = new TypeTree(symbolTree, tTree);
+                var firstArgTree = new TypeTree(symbolTree, leftGraftTree);
                 afterEnd += symbol.Length;
                 afterEnd += Spaces(s, afterEnd);
                 var secondArgTree = ParseTypeTreeRecur(s, afterEnd, right);
-                var rightTree = new TypeTree(firstArgTree, secondArgTree);
-
-                if (leftGraftTree == null) return rightTree;
-                return new TypeTree(leftGraftTree, rightTree);
+                return new TypeTree(firstArgTree, secondArgTree);
             }
 
-            // otherwise, take what we have and make it the left child of a node
-            // and out the stuff we'll see in the future in the right child of that node
-            TypeTree rightSubTree = tTree;
-            if (leftGraftTree == null) {
-                leftGraftTree = rightSubTree;
-            } else {
-                leftGraftTree = new TypeTree(leftGraftTree, rightSubTree);
-            }
+
             return ParseTypeTreeRecur(s, afterEnd, right, leftGraftTree);
         }
+
+        public static TypeTree ParseTypeTreeRecur2(string s, int left, int right, TypeTree leftGraftTree) {
+            // trim spaces on either end of string and check for crossover between left and right bounds
+            if (left > right) throw new Exception("Parentheses not balanced!");
+            while (s[left] == ' ') left++;
+            while (s[right] == ' ') right--;
+            if (left > right) throw new Exception("Parentheses not balanced!");
+
+            TypeTree sexpLeft = null;
+            TypeTree sexpRight;
+
+            // if we've reached the end of the subexpression, just return what we have
+            while (left <= right) {
+
+                int afterEnd; // index after the leftmost sub-expression
+                if (s[left] == '(') { // case of a subexpression (...)
+                    int end = GetIndexOfEndParen(s, left + 1);
+                    sexpRight = ParseTypeTreeRecur2(s, left + 1, end - 1, null);
+                    afterEnd = end + 1;
+                } else { // case of parsing a single identifier
+                    int length = IdentifierOrOp(s, left);
+                    string identifier = s.Substring(left, length);
+                    sexpRight = TypeTree.MakePrimitiveTree(identifier);
+                    afterEnd = left + length;
+                }
+
+                if (sexpLeft == null) {
+                    sexpLeft = sexpRight;
+                } else {
+                    sexpLeft = new TypeTree(sexpLeft, sexpRight);
+                }
+
+                left = afterEnd + Spaces(s, afterEnd);
+            }
+
+            return sexpLeft;
+        }
+
+
+
+
+
 
         public static KindTree ParseKindTree(string s) {
             bool balanced = CheckBalancedParens(s);
