@@ -13,11 +13,13 @@ namespace AlgebraSystem {
 
         public Dictionary<string, Variable> variableLookup;
         public Dictionary<string, TypeSet> typeLookup;
+        public Dictionary<string, TreeTransformation> transformationLookup;
         public Namespace parentNS;
 
         public Namespace(Namespace parentNS = null) {
             this.variableLookup = new Dictionary<string, Variable>();
             this.typeLookup = new Dictionary<string, TypeSet>();
+            this.transformationLookup = new Dictionary<string, TreeTransformation>();
             this.parentNS = parentNS;
             this.name = "namespace" + Namespace.namespaceIdx;
             Namespace.namespaceIdx++;
@@ -280,6 +282,12 @@ namespace AlgebraSystem {
             return true;
         }
 
+        // ----- Add Transformation ------------------------
+        public bool AddTransformation(string name, TreeTransformation t) {
+            if (this.transformationLookup.ContainsKey(name)) return false;
+            this.transformationLookup.Add(name, t);
+            return true;
+        }
 
         // ----- Looking up objects ------------------------
         public Variable VariableLookup(string name) {
@@ -317,6 +325,15 @@ namespace AlgebraSystem {
             }
         }
 
+        public TreeTransformation TransformationLookup(string name) {
+            if (this.transformationLookup.ContainsKey(name)) {
+                return this.transformationLookup[name];
+            } else if (this.parentNS != null) {
+                return this.parentNS.TransformationLookup(name);
+            } else {
+                return null;
+            }
+        }
 
         // ----- Errors ------------------------------------
         public void NameError(string name) {
@@ -395,7 +412,6 @@ namespace AlgebraSystem {
             gns.AddConstantConversion(">", "(Int -> (Int -> Bool))", ConversionFuncs._GT);
 
 
-
             ///// STANDARD POLYMORPHIC FUNCTIONS ///////////////
             // creates namespaces 1-5
             gns.AddConstantExpression("id", "x", "x");
@@ -403,6 +419,17 @@ namespace AlgebraSystem {
             gns.AddConstantExpression("const", "x", "x;y");
             gns.AddConstantExpression("cmp", "f (g x)", "f;g;x");
             gns.AddConstantExpression("homo", "op (f x) (f y)", "op;f;x;y");
+
+
+            ///// STANDARD TREE TRANSFORMATIONS ////////////////
+            gns.AddTransformation("DeMorgan1", 
+                TreeTransformationFactory.MakeHomomorphism("NOT", "AND", "OR", gns));
+            gns.AddTransformation("DeMorgan2",
+                TreeTransformationFactory.MakeHomomorphism("NOT", "OR", "AND", gns));
+            gns.AddTransformation("ExponentLaw",
+                TreeTransformationFactory.MakeHomomorphism("^ b", "*", "+", gns));
+            gns.AddTransformation("Factoring",
+                TreeTransformationFactory.MakeHomomorphism("* a", "+", "+", gns));
 
             return gns;
         }

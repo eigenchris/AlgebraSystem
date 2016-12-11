@@ -51,5 +51,24 @@ namespace UnitTestProject1 {
             Assert.IsTrue(expectedRight.DeepEquals(actualRight));
         }
 
+        [TestMethod]
+        public void TreeTransformationFactory_LookUp_FactoringTest() {
+            // Arrange
+            Namespace gns = Namespace.CreateGlobalNs();
+
+
+            TermNew expectedLeft = TermNew.TermFromSExpression("+ (* 2 6) (* 2 4)", gns);
+            TermNew expectedRight = TermNew.TermFromSExpression("* 2 (+ 6 4)", gns);
+
+            // Act
+            TreeTransformation tt = gns.TransformationLookup("Factoring");
+            TermNew actualRight = tt.TransformLeft(expectedLeft);
+            TermNew actualLeft = tt.TransformRight(actualRight);
+
+            // Assert
+            Assert.IsTrue(expectedLeft.DeepEquals(actualLeft));
+            Assert.IsTrue(expectedRight.DeepEquals(actualRight));
+        }
+
     }
 }
