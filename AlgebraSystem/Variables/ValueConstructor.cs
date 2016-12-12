@@ -2,14 +2,25 @@
 using System.Collections.Generic;
 
 namespace AlgebraSystem {
-    public class ValueConstructor {
-        public string name { get; private set; }
-        private TypeTree typeTree;
+    public class ValueConstructor : Constant {
 
-        private ValueConstructor(string name, TypeTree typeTree) {
-            this.name = name;
-            this.typeTree = typeTree;
+        public ValueConstructor(string name, TypeExpr typeExpr, Namespace ns, string printString) :
+            base(name, typeExpr, ns, printString) 
+        {
+            this.expectedNumberOfArgs = typeExpr.typeTree.GetNumberOfInputs();
+            this.compType = ComputationType.valueConstructor; // parent constructor gets called first, so this is okay
         }
+        public ValueConstructor(string name, TypeExpr typeExpr, Namespace ns) :
+            this(name, typeExpr, ns, name) { }
+        public ValueConstructor(string name, string type, Namespace ns) : 
+            this(name, new TypeExpr(type), ns, name) { }
+        public ValueConstructor(string name, string type, Namespace ns, string printString) : 
+            this (name, new TypeExpr(type), ns, printString)  { }
+
+        public override TermNew Evaluate(List<TermNew> args) {
+            return null;
+        }
+
 
         public static ValueConstructor ParseValueConstructor(string s, TypeTree resultTypeTree, Namespace ns) {
             if (string.IsNullOrEmpty(s)) throw new Exception("ValueConstructor string cannot be null or Empty");
@@ -39,11 +50,12 @@ namespace AlgebraSystem {
             }
             typeTreeList.Add(resultTypeTree);
 
-            TypeTree vcType = TypeTree.TypeTreeFromTreeList(typeTreeList);
+            TypeTree vcType = TypeTree.TypeTreeFromTreeList(typeTreeList);            
             // Kind Checking...
             if (KindChecking(vcType, ns) == null) return null;
 
-            return new ValueConstructor(vcName, vcType);
+            TypeExpr vcTypeExr = new TypeExpr(vcType, vcType.GetTypeVariables());
+            return new ValueConstructor(vcName, vcTypeExr, ns);
         }
 
         // this all works by assuming that all type trees for filled TypeConstructors have kind *

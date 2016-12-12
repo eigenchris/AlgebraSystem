@@ -45,11 +45,17 @@ namespace AlgebraSystem {
         public bool ContainsTypeLocal(string name) {
             return this.typeLookup.ContainsKey(name);
         }
+        public bool ContainsTypeConstructorLocal(string name) {
+            return this.typeConstructorLookup.ContainsKey(name);
+        }
         public bool ContainsVariable(string name) {
             return this.VariableLookup(name) != null;
         }
         public bool ContainsType(string name) {
             return this.TypeLookup(name) != null;
+        }
+        public bool ContainsTypeConstructor(string name) {
+            return this.TypeConstructorLookup(name) != null;
         }
 
         public bool ValidateTree(TypeTree tree) {
@@ -61,6 +67,72 @@ namespace AlgebraSystem {
         }
 
         // ----- Adding objects ----------------------------
+        public bool AddTypeDefinition(string typeDefinitionString) {
+            string[] halves = typeDefinitionString.Split('=');
+            string typeConstructorString = halves[0].Trim();
+            string valueConstructorString = null;
+            if (halves.Length > 1) {
+                valueConstructorString = halves[1];
+            }
+
+            int length = Parser.TypeIdentifier(typeConstructorString);
+            string name = typeConstructorString.Substring(0, length);
+
+            bool succ1 = this.AddTypeConstructor(typeConstructorString);
+            if (!succ1) return false;
+            if(valueConstructorString!=null) {
+                bool succ2 = this.AddValueConstructor(valueConstructorString, name);
+                if (!succ2) {
+                    this.typeConstructorLookup.Remove(name);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public bool AddTypeConstructor(string tcString) {
+            int typeNameLength = Parser.TypeIdentifier(tcString);
+            string typeNameString = tcString.Substring(0, typeNameLength);
+            if(ContainsTypeConstructorLocal(typeNameString)) {
+                this.NameError(typeNameString);
+                return false;
+            }
+
+            TypeConstructor tc = TypeConstructor.ParseTypeConstructor(tcString, this);
+            if (tc == null) return false;
+
+            this.typeConstructorLookup.Add(typeNameString, tc);
+            return true;           
+        }
+
+        public bool AddValueConstructor(string vcStringList, string tcName) {
+            if (!this.ContainsTypeConstructorLocal(tcName)) {
+                this.TcError(tcName);
+                return false;
+            }
+            TypeTree resultTypeTree = this.TypeConstructorLookup(tcName).resultTypeTree;
+
+            var vcList = new List<ValueConstructor>();
+            List<string> valueConstructorStrings = vcStringList.Split('/').Select(x => x.Trim()).ToList();
+            foreach (var vcString in valueConstructorStrings) {
+                var vc = ValueConstructor.ParseValueConstructor(vcString, resultTypeTree, this);
+                if (vc == null) return false;
+                if (this.ContainsVariableLocal(vc.name)) {
+                    this.NameError(vc.name);
+                    return false;
+                }
+                vcList.Add(vc);
+            }
+
+            foreach(var vc in vcList) {
+                this.variableLookup.Add(vc.name, vc);
+            }            
+            return true;
+        }
+
+
+
         public bool AddTypeSet(string names) {
             if (names == "") return false;
 
@@ -353,12 +425,14 @@ namespace AlgebraSystem {
             Console.WriteLine("Error creating name '" + name + "'");
             Console.WriteLine("Name is already used.");
         }
+        public void TcError(string name) {
+            Console.WriteLine("Error creating value constructors for type'" + name + "'");
+            Console.WriteLine("Type constructor does not exist.");
+        }
         public void TypeTreeError(string name, TypeTree typeTree) {
             Console.WriteLine("Error creating name '" + name + "'");
             Console.WriteLine("Type tree is not valid in this namespace: " + typeTree);
         }
-
-
 
 
         // ----- Global namespace types/variables ----------
@@ -366,6 +440,12 @@ namespace AlgebraSystem {
             Namespace gns = new Namespace();
 
             ///// TYPE CONSTRUCTORS //////
+            gns.AddTypeDefinition("-> a b");
+            gns.AddTypeDefinition("| a b = Left a / Right b");
+            gns.AddTypeDefinition(", a b = Pair a b");
+            gns.AddTypeDefinition("List a = Cons a (List a) / Nil");
+            gns.AddTypeDefinition("Boolean = True / False");
+
             gns.AddTypeSet("->");
             gns.AddTypeSet("|");
             gns.AddTypeSet(",");

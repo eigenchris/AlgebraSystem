@@ -46,8 +46,8 @@
     <Compile Include="TermExpr.cs" />
     <Compile Include="TermNew.cs" />
     <Compile Include="TreeTransformationFactory.cs" />
-    <Compile Include="ValueConstructor.cs" />
-    <Compile Include="TypeConstructor.cs" />
+    <Compile Include="Variables\ValueConstructor.cs" />
+    <Compile Include="Types\TypeConstructor.cs" />
     <Compile Include="Types\TypeConstructorEnum.cs" />
     <Compile Include="Types\KindTree.cs" />
     <Compile Include="Variables\Constant.cs" />
