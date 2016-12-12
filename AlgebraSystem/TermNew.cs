@@ -335,7 +335,7 @@ namespace AlgebraSystem {
             var argList = new List<TermNew>();
             while(!currentTerm.IsLeaf()) {
                 TermNew arg = currentTerm.right.Eval(ns);
-                if (arg == null) argList.Add(currentTerm.right.DeepCopy()); // not enough args to eval/collapse; just add the tree to args as-is
+                if (arg == null) throw new Exception("Something Eval()'d to null... this shouldn't happen!"); 
                 else argList.Add(arg);
                 currentTerm = currentTerm.left;
             }
@@ -344,6 +344,10 @@ namespace AlgebraSystem {
             string functionSymbol = currentTerm.value;
             Variable functionObject = ns.VariableLookup(functionSymbol);
             TermNew result = functionObject?.Evaluate(argList);
+
+            // null = not enough args to eval/collapse; or a ValueConstrutor
+            //  just leave the TermNew as-is...
+            if (result == null) result = this.DeepCopy();
 
             return result;
         }

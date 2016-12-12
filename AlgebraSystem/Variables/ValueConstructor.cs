@@ -4,18 +4,18 @@ using System.Collections.Generic;
 namespace AlgebraSystem {
     public class ValueConstructor : Constant {
 
-        public ValueConstructor(string name, TypeExpr typeExpr, Namespace ns, string printString) :
+        public ValueConstructor(string name, TypeExpr typeExpr, Namespace ns, string printString, int numArgs) :
             base(name, typeExpr, ns, printString) 
         {
-            this.expectedNumberOfArgs = typeExpr.typeTree.GetNumberOfInputs();
+            this.expectedNumberOfArgs = numArgs;
             this.compType = ComputationType.valueConstructor; // parent constructor gets called first, so this is okay
         }
-        public ValueConstructor(string name, TypeExpr typeExpr, Namespace ns) :
-            this(name, typeExpr, ns, name) { }
-        public ValueConstructor(string name, string type, Namespace ns) : 
-            this(name, new TypeExpr(type), ns, name) { }
-        public ValueConstructor(string name, string type, Namespace ns, string printString) : 
-            this (name, new TypeExpr(type), ns, printString)  { }
+        public ValueConstructor(string name, TypeExpr typeExpr, Namespace ns, int numArgs) :
+            this(name, typeExpr, ns, name, numArgs) { }
+        public ValueConstructor(string name, string type, Namespace ns, int numArgs) : 
+            this(name, new TypeExpr(type), ns, name, numArgs) { }
+        public ValueConstructor(string name, string type, Namespace ns, string printString, int numArgs) : 
+            this (name, new TypeExpr(type), ns, printString, numArgs)  { }
 
         public override TermNew Evaluate(List<TermNew> args) {
             return null;
@@ -55,7 +55,7 @@ namespace AlgebraSystem {
             if (KindChecking(vcType, ns) == null) return null;
 
             TypeExpr vcTypeExr = new TypeExpr(vcType, vcType.GetTypeVariables());
-            return new ValueConstructor(vcName, vcTypeExr, ns);
+            return new ValueConstructor(vcName, vcTypeExr, ns, typeTreeList.Count-1);
         }
 
         // this all works by assuming that all type trees for filled TypeConstructors have kind *
