@@ -338,6 +338,8 @@ namespace AlgebraSystem {
             return depth == 0;
         }
 
+        // Expects you to pass in the index of the first character INSIDE the parens
+        //   e.g. 'x' in "(xyz)"
         public static int GetIndexOfEndParen(string s, int start = 0) {
             int depth = 1;
             int idx = start;

@@ -229,7 +229,7 @@ namespace AlgebraSystem {
                 TypeTree t; 
                 if (variableTypes.ContainsKey(v)) {
                 } else if (ns.ContainsVariable(v)) {
-                    t = ns.VariableLookup(sexp.value).typeExpr.typeTree.DeepCopy();
+                    t = ns.VariableLookup(v).typeExpr.typeTree.DeepCopy();
                     variableTypes.Add(v, t);
                 } else {
                     string eTypeVar = "v" + introducedTypeVars.Count;

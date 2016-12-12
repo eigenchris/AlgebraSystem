@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 namespace AlgebraSystem {
     public class TypeTree {
 
-        private TypeTree left;
-        private TypeTree right;
+        public TypeTree left { get; private set; }
+        public TypeTree right { get; private set; }
         private string _value;
         // when we write to _value, kill the child nodes
         public string value {

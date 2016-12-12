@@ -13,12 +13,14 @@ namespace AlgebraSystem {
 
         public Dictionary<string, Variable> variableLookup;
         public Dictionary<string, TypeSet> typeLookup;
+        public Dictionary<string, TypeConstructor> typeConstructorLookup;
         public Dictionary<string, TreeTransformation> transformationLookup;
         public Namespace parentNS;
 
         public Namespace(Namespace parentNS = null) {
             this.variableLookup = new Dictionary<string, Variable>();
             this.typeLookup = new Dictionary<string, TypeSet>();
+            this.typeConstructorLookup = new Dictionary<string, TypeConstructor>();
             this.transformationLookup = new Dictionary<string, TreeTransformation>();
             this.parentNS = parentNS;
             this.name = "namespace" + Namespace.namespaceIdx;
@@ -324,6 +326,17 @@ namespace AlgebraSystem {
                 return null;
             }
         }
+
+        public TypeConstructor TypeConstructorLookup(string name) {
+            if (this.typeConstructorLookup.ContainsKey(name)) {
+                return this.typeConstructorLookup[name];
+            } else if (this.parentNS != null) {
+                return this.parentNS.TypeConstructorLookup(name);
+            } else {
+                return null;
+            }
+        }
+
 
         public TreeTransformation TransformationLookup(string name) {
             if (this.transformationLookup.ContainsKey(name)) {

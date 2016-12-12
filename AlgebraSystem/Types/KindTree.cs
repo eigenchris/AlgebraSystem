@@ -39,14 +39,20 @@ namespace AlgebraSystem {
         }
         public static KindTree MakeSimpleTreeOfLength(int n) {
             KindTree baseTree = KindTree.MakePrimitiveTree("*");
-            n--;
             while(n>0) {
                 KindTree star = KindTree.MakePrimitiveTree("*");
                 KindTree arrow = KindTree.MakePrimitiveTree("=>");
                 var graft = new KindTree(arrow, star);
                 baseTree = new KindTree(graft, baseTree);
+                n--;
             }
             return baseTree;
+        }
+        public KindTree ExtendTree() {
+            KindTree star = KindTree.MakePrimitiveTree("*");
+            KindTree arrow = KindTree.MakePrimitiveTree("=>");
+            var graft = new KindTree(arrow, star);
+            return new KindTree(graft, this.DeepCopy());
         }
 
         // Getting is normal, but setting should set the string to empty
