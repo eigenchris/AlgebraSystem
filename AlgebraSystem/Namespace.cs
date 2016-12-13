@@ -8,12 +8,13 @@ using System.Text.RegularExpressions;
 
 namespace AlgebraSystem {
     public class Namespace {
-        public string name;
         public static int namespaceIdx = 0;
+        public string name;
 
         public Dictionary<string, Variable> variableLookup;
         public Dictionary<string, TypeSet> typeLookup;
         public Dictionary<string, TypeConstructor> typeConstructorLookup;
+        public Dictionary<string, TypeClass> typeClassLookup;
         public Dictionary<string, TreeTransformation> transformationLookup;
         public Namespace parentNS;
 
@@ -21,6 +22,7 @@ namespace AlgebraSystem {
             this.variableLookup = new Dictionary<string, Variable>();
             this.typeLookup = new Dictionary<string, TypeSet>();
             this.typeConstructorLookup = new Dictionary<string, TypeConstructor>();
+            this.typeClassLookup = new Dictionary<string, TypeClass>();
             this.transformationLookup = new Dictionary<string, TreeTransformation>();
             this.parentNS = parentNS;
             this.name = "namespace" + Namespace.namespaceIdx;
@@ -67,6 +69,23 @@ namespace AlgebraSystem {
         }
 
         // ----- Adding objects ----------------------------
+        public bool AddTypeClass(string name, List<string> typeArgs, Dictionary<string,string> methodTypeStrings) {
+            // confirm none of the proposed names exist in the namespace 
+            foreach (var methodName in methodTypeStrings.Keys) {
+                if (this.ContainsVariableLocal(methodName)) {
+                    this.NameError(methodName);
+                    return false;
+                }
+            }
+
+            TypeClass typeClass = TypeClass.ParseTypeClass(name, typeArgs, methodTypeStrings, this);
+            if (typeClass == null) return false;
+
+            this.typeClassLookup.Add(name, typeClass);
+            return true;
+        }
+
+
         public bool AddTypeDefinition(string typeDefinitionString) {
             string[] halves = typeDefinitionString.Split('=');
             string typeConstructorString = halves[0].Trim();
@@ -114,9 +133,10 @@ namespace AlgebraSystem {
             TypeTree resultTypeTree = this.TypeConstructorLookup(tcName).resultTypeTree;
 
             var vcList = new List<ValueConstructor>();
+            var knownKinds = new Dictionary<string, KindTree>();
             List<string> valueConstructorStrings = vcStringList.Split('/').Select(x => x.Trim()).ToList();
             foreach (var vcString in valueConstructorStrings) {
-                var vc = ValueConstructor.ParseValueConstructor(vcString, resultTypeTree, this);
+                var vc = ValueConstructor.ParseValueConstructor(vcString, resultTypeTree, this, knownKinds);
                 if (vc == null) return false;
                 if (this.ContainsVariableLocal(vc.name)) {
                     this.NameError(vc.name);

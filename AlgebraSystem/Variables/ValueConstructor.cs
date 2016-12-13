@@ -22,7 +22,7 @@ namespace AlgebraSystem {
         }
 
 
-        public static ValueConstructor ParseValueConstructor(string s, TypeTree resultTypeTree, Namespace ns) {
+        public static ValueConstructor ParseValueConstructor(string s, TypeTree resultTypeTree, Namespace ns, Dictionary<string,KindTree> knownKinds = null) {
             if (string.IsNullOrEmpty(s)) throw new Exception("ValueConstructor string cannot be null or Empty");
             if (s[0] != char.ToUpper(s[0])) throw new Exception("ValueConstructor must start with a capital letter.");
             s = s.Trim();
@@ -50,40 +50,14 @@ namespace AlgebraSystem {
             }
             typeTreeList.Add(resultTypeTree);
 
-            TypeTree vcType = TypeTree.TypeTreeFromTreeList(typeTreeList);            
+            TypeTree vcType = TypeTree.TypeTreeFromTreeList(typeTreeList);
             // Kind Checking...
-            if (KindChecking(vcType, ns) == null) return null;
+            knownKinds = knownKinds ?? new Dictionary<string, KindTree>();
+            if (Inference.KindChecking(vcType, ns, knownKinds) == null) return null;
 
             TypeExpr vcTypeExr = new TypeExpr(vcType, vcType.GetTypeVariables());
             return new ValueConstructor(vcName, vcTypeExr, ns, typeTreeList.Count-1);
         }
-
-        // this all works by assuming that all type trees for filled TypeConstructors have kind *
-        public static Dictionary<string, KindTree> KindChecking(TypeTree typeTree, Namespace ns, KindTree assumedKind = null, Dictionary<string,KindTree> typeKinds = null) {
-            assumedKind = assumedKind ?? KindTree.MakePrimitiveTree("*");
-            typeKinds = typeKinds ?? new Dictionary<string, KindTree>();
-
-            // assume all inputs (right) have kind "*" and all operators have kind "* => current"
-            if(!typeTree.IsLeaf()) {
-                var succ1 = KindChecking(typeTree.left, ns, assumedKind.ExtendTree(), typeKinds);
-                if (succ1 == null) return null;
-                var succ2 = KindChecking(typeTree.right, ns, KindTree.MakePrimitiveTree("*"), typeKinds);
-                if (succ2 == null) return null;
-            } else {
-                string typeName = typeTree.value;
-
-                KindTree k = ns.TypeConstructorLookup(typeName)?.kindTree;
-                if(k!=null) {
-                    if (!k.DeepEquals(assumedKind)) return null;
-                } else if (typeKinds.ContainsKey(typeName)) {
-                    if (!typeKinds[typeName].DeepEquals(assumedKind)) return null;
-                } else {
-                    typeKinds.Add(typeName, assumedKind);
-                }
-            }
-            return typeKinds;
-        }
-
 
     }
 }
