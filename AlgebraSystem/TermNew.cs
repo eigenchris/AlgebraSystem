@@ -272,6 +272,7 @@ namespace AlgebraSystem {
             var masterSubs = new Dictionary<string, TypeTree>(); 
             for(int i=0; i<typeEquations.Count; i++) {
                 var subs = TypeTree.UnifyAndSolve(typeEquations[i].Item1, typeEquations[i].Item2);
+                if (subs == null) return null;
                 foreach(var k in subs.Keys) {
                     if (!masterSubs.ContainsKey(k)) masterSubs.Add(k, subs[k]);
                     else if (subs[k].DeepEquals(masterSubs[k]) || CheckIfEquationExists(typeEquations, subs[k], masterSubs[k])) continue;

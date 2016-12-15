@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AlgebraSystem {
     public class Variable {
-        public enum ComputationType { variable, primative, conversion, lookup, expression, valueConstructor };
+        public enum ComputationType { variable, primative, conversion, lookup, expression, overloaded, valueConstructor };
 
         public string name { get; private set; }
         public TypeExpr typeExpr { get; }

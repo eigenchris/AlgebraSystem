@@ -25,27 +25,20 @@ namespace AlgebraSystemTest {
 
             // Assert
             Assert.IsTrue(success);
+
+
+            var implementation = new Dictionary<string, string>() {
+                {"comboG", "+" },
+                {"idG", "0" },
+                {"inverseG", "neg" },
+            };
+            gns.TypeClassLookup(name).MakeInstance(implementation, gns);
+
+            TermNew t = TermNew.TermFromSExpression("comboG (inverseG (comboG 4 5)) idG", gns);
+            //TermNew r = t.Eval(gns);
+
+            //Assert.AreEqual(r.value,"-9");
         }
-
-        [TestMethod]
-        public void TypeConstructorTest_EvaluateTest() {
-            // Arrange
-            var gns = Namespace.CreateGlobalNs();
-
-            SExpression s1 = Parser.ParseSExpression("Cons 4 (Cons 2 Nil)");
-            SExpression s2 = Parser.ParseSExpression("id (Cons 4 (Cons 2 Nil))");
-
-            // Act
-            TermNew t1 = TermNew.TermFromSExpression(s1, gns);
-            TermNew t1e = t1.Eval(gns);
-            TermNew t2 = TermNew.TermFromSExpression(s2, gns);
-            TermNew t2e = t2.Eval(gns);
-
-            // Assert
-            Assert.IsTrue(t1.DeepEquals(t1e));
-            Assert.IsTrue(t1.DeepEquals(t2e));
-        }
-
 
     }
 }

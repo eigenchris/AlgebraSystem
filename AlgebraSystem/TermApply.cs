@@ -74,7 +74,7 @@ namespace AlgebraSystem {
                 this.left = l.DeepCopy();
                 this.right = r.DeepCopy();
                 this._value = string.Empty;
-                this.typeTree = parentTree.PopInput();
+                //this.typeTree = parentTree.PopInput();
 
                 return true;
             }

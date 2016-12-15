@@ -202,39 +202,27 @@ namespace AlgebraSystem {
             return (this.left == null);
         }
 
-        public int GetNumberOfInputs() {
-            int num = 0;
-            TypeTree tree = this;
-            while (tree.right != null) {
-                num++;
-                tree = tree.right;
+        public int GetNumberOfInputs(int num = 0) {
+            if(this.left?.left?.value == "->") {
+                return this.right.GetNumberOfInputs(num + 1);
+            } else {
+                return num;
             }
-            return num;
         }
 
-        public TypeTree PopInput() {
-            if (this.IsLeaf()) {
+        public TypeTree GetInputType() {
+            if (this.left?.left?.value!="->") {
                 return null;
             } else {
                 return this.right.DeepCopy();
             }
         }
 
-        public TypeTree PopOutput() {
-            TypeTree returnTree = this.DeepCopy();
-            if (returnTree.IsLeaf()) {
+        public TypeTree GetOutputType() {
+            if (this.left?.left?.value != "->") {
                 return null;
-            } else if (returnTree.right.IsLeaf()) {
-                return returnTree.left;
             } else {
-                TypeTree tempTree1 = returnTree;
-                TypeTree tempTree2 = returnTree.right;
-                while (!tempTree2.right.IsLeaf()) {
-                    tempTree1 = tempTree1.right;
-                    tempTree2 = tempTree2.right;
-                }
-                tempTree1.right = tempTree2.left;
-                return returnTree;
+                return this.left.right.DeepCopy();
             }
         }
 

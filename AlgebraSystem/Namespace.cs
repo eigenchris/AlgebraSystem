@@ -50,6 +50,9 @@ namespace AlgebraSystem {
         public bool ContainsTypeConstructorLocal(string name) {
             return this.typeConstructorLookup.ContainsKey(name);
         }
+        public bool ContainsTypeClassLocal(string name) {
+            return this.typeClassLookup.ContainsKey(name);
+        }
         public bool ContainsVariable(string name) {
             return this.VariableLookup(name) != null;
         }
@@ -58,6 +61,9 @@ namespace AlgebraSystem {
         }
         public bool ContainsTypeConstructor(string name) {
             return this.TypeConstructorLookup(name) != null;
+        }
+        public bool ContainsTypeClass(string name) {
+            return this.TypeClassLookup(name) != null;
         }
 
         public bool ValidateTree(TypeTree tree) {
@@ -82,6 +88,12 @@ namespace AlgebraSystem {
             if (typeClass == null) return false;
 
             this.typeClassLookup.Add(name, typeClass);
+
+            foreach(var v in methodTypeStrings.Keys) {
+                var c = new ConstantOverloaded(v, methodTypeStrings[v], this);
+                this.variableLookup.Add(v, c);
+            }
+
             return true;
         }
 
@@ -424,6 +436,16 @@ namespace AlgebraSystem {
                 return this.typeConstructorLookup[name];
             } else if (this.parentNS != null) {
                 return this.parentNS.TypeConstructorLookup(name);
+            } else {
+                return null;
+            }
+        }
+
+        public TypeClass TypeClassLookup(string name) {
+            if (this.typeClassLookup.ContainsKey(name)) {
+                return this.typeClassLookup[name];
+            } else if (this.parentNS != null) {
+                return this.parentNS.TypeClassLookup(name);
             } else {
                 return null;
             }
