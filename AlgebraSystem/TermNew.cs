@@ -344,12 +344,19 @@ namespace AlgebraSystem {
 
             string functionSymbol = currentTerm.value;
             Variable functionObject = ns.VariableLookup(functionSymbol);
+
+            // Dispatch overloadded name if needed
+            if(functionObject is ConstantOverloaded) {
+                string typeKey = currentTerm.typeTree.ToString();
+                functionSymbol = ((ConstantOverloaded)functionObject).typeKeyToName[typeKey];
+                functionObject = ns.VariableLookup(functionSymbol);
+            }
+
             TermNew result = functionObject?.Evaluate(argList);
 
             // null = not enough args to eval/collapse; or a ValueConstrutor
             //  just leave the TermNew as-is...
             if (result == null) result = this.DeepCopy();
-
             return result;
         }
 

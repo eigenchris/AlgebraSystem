@@ -35,9 +35,10 @@ namespace AlgebraSystemTest {
             gns.TypeClassLookup(name).MakeInstance(implementation, gns);
 
             TermNew t = TermNew.TermFromSExpression("comboG (inverseG (comboG 4 5)) idG", gns);
-            //TermNew r = t.Eval(gns);
+            TermNew t1 = TermNew.TermFromSExpression("comboG (inverseG (comboG a b)) idG", gns);
+            TermNew r = t.Eval(gns);
 
-            //Assert.AreEqual(r.value,"-9");
+            Assert.AreEqual(r.value,"-9");
         }
 
     }

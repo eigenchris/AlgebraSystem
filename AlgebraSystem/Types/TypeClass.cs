@@ -52,21 +52,26 @@ namespace AlgebraSystem {
             var implementationTypeArgs = new Dictionary<string, TypeTree>();
             foreach (var methodName in this.methodTypes.Keys) {
                 if (!implementationMethods.ContainsKey(methodName)) return false;
+
+                TypeTree polymorphicType = this.methodTypes[methodName];
+                TypeTree implementationType = ns.VariableLookup(implementationMethods[methodName]).typeExpr.typeTree;
+                implementationType = implementationType.MakeTypeVarsUnique(polymorphicType);
+
                 var result = TypeTree.UnifyAndSolve(
-                    ns.VariableLookup(implementationMethods[methodName]).typeExpr.typeTree, 
-                    this.methodTypes[methodName],
+                    implementationType,
+                    polymorphicType,
                     implementationTypeArgs);
                 if (result == null) return false;              
             }
 
-            // Ensure we have an implementation for each type, and assembly the typeKey
-            string typeKey = "";
+            // Ensure we have an implementation for each type
             foreach (var typeArg in this.typeArgKinds.Keys) {
                 if (!implementationTypeArgs.ContainsKey(typeArg)) return false;
-                typeKey += implementationTypeArgs[typeArg].ToString() + ";";
             }
 
+            // typeKey is just the Type of the imeplementation (as a string)
             foreach(var key in implementationMethods.Keys) {
+                string typeKey = ns.VariableLookup(implementationMethods[key]).typeExpr.typeTree.ToString();
                 var c = ns.VariableLookup(key) as ConstantOverloaded;
                 if (c == null) return false;
                 if (c.typeKeyToName.ContainsKey(typeKey)) return false;
