@@ -38,6 +38,16 @@ namespace AlgebraSystem {
             return TreeTransformationFactory.Make(tFrom, tTo, ns);
         }
 
+        public static TreeTransformation MakeIdentity(string op, string id, Namespace ns) {
+            string sFrom = $"{op} {id} x";
+            string sTo = $"x";
+
+            TermNew tFrom = TermNew.TermFromSExpression(sFrom, ns);
+            TermNew tTo = TermNew.TermFromSExpression(sTo, ns);
+
+            return TreeTransformationFactory.Make(tFrom, tTo, ns);
+        }
+
     }
 }
  
