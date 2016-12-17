@@ -23,8 +23,10 @@ namespace AlgebraSystem {
             if (subs == null) return null;
 
             // Ensure all the TreeTransformation variables have values to take on
+            var varsToTypesCopy = new Dictionary<string, TypeTree>();
             foreach(var key in this.varsToTypes.Keys) {
                 if (!subs.ContainsKey(key)) return null;
+                varsToTypesCopy.Add(key, this.varsToTypes[key]);
             }
 
             // Ensure types of these variables match expected
@@ -62,8 +64,6 @@ namespace AlgebraSystem {
         public override string ToString() {
             return this.t1 + " <=> " + this.t2;
         }
-
-
 
     }
 }

@@ -6,6 +6,7 @@ namespace AlgebraSystem {
 
         public static TreeTransformation Make(TermNew tFrom, TermNew tTo, Namespace ns) {
             if (tFrom == null || tTo == null || ns == null) return null;
+
             Dictionary<string,TypeTree> tFromN2T = tFrom.GetNamesToTypesDictionary();
             Dictionary<string,TypeTree> tToN2T = tFrom.GetNamesToTypesDictionary();
 
