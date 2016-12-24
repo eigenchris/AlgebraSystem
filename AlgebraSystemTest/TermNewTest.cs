@@ -104,6 +104,5 @@ namespace UnitTestProject1 {
             Assert.IsTrue(t.typeTree.IsLeaf());
             Assert.AreEqual(t.typeTree.value, "Bool");
         }
-
     }
 }

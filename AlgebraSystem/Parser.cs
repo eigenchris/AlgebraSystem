@@ -21,24 +21,7 @@ namespace AlgebraSystem {
             if (string.IsNullOrEmpty(s)) return new List<string>();
             return s.Split(new char[] { ',' }).ToList();
         }
-
-        // take a list of primitive terms and return their variable names
-        public static List<string> TermsToNames(List<Term> t) {
-            List<string> s = new List<string>();
-            foreach(var term in t) {
-                if (!term.IsLeaf()) return null;
-                s.Add(term.value);
-            }
-            return s;
-        }
-        public static List<string> TermsToNames(List<TermApply> t) {
-            List<string> s = new List<string>();
-            foreach (var term in t) {
-                if (!term.IsLeaf()) return null;
-                s.Add(term.value);
-            }
-            return s;
-        }
+        
         public static List<string> TermsToNames(List<TermNew> t) {
             List<string> s = new List<string>();
             foreach (var term in t) {
@@ -46,13 +29,6 @@ namespace AlgebraSystem {
                 s.Add(term.value);
             }
             return s;
-        }
-        public static List<Term> NamesToTerms(List<string> s, Namespace ns) {
-            List<Term> t = new List<Term>();
-            foreach (var name in s) {
-                t.Add(Term.MakePrimitiveTree(name, ns));
-            }
-            return t;
         }
 
         public static Dictionary<Tkey,Tvalue> MergeDictionaries<Tkey,Tvalue>(Dictionary<Tkey,Tvalue> d1, Dictionary<Tkey,Tvalue> d2) {
@@ -184,71 +160,6 @@ namespace AlgebraSystem {
         }
 
         // ----- Parsing S-Expressions ------------------------
-        // methods in here return the number of parsed characters
-        // yes, this is a pretty terrible/inefficient parser with a lot of string copying
-        // I don't care, I just want it to work
-        public static STree ParseSTree(string input, int idx = 0) {
-
-            STree leftTree = null;
-
-            int depth = 0;
-            int subExpStart = 0;
-            int subExpLength = 0;
-            char c;
-
-            // ----- left tree / identifier
-            while (idx < input.Length) {
-                c = input[idx];
-                if (char.IsLetterOrDigit(c) || specials.Contains(c)) {
-                    if (depth == 0) {
-                        int length = Parser.Any(input, idx);
-                        if (length == 0) {
-                            Parser.SExprParseError(input, idx);
-                            return null;
-                        }
-                        string word = input.Substring(idx, length);
-                        leftTree = new STree(leftTree, STree.MakePrimitiveTree(word));
-                        if (leftTree == null) return null;
-                        idx += length;
-                    } else {
-                        idx += 1;
-                    }                   
-                } else if(char.IsWhiteSpace(c)) {
-                    idx += 1;
-                } else if(c == '(') {
-                    idx += 1;
-                    if (depth == 0) subExpStart = idx;
-                    depth += 1;
-                } else if(c == ')') {
-                    depth -= 1;
-                    if (depth < 0) {
-                        SExprParseError(input, idx);
-                        return null;
-                    } else if (depth == 0) {
-                        subExpLength = idx - subExpStart;
-                        if (subExpLength == 0) {
-                            Parser.SExprParseError(input, idx);
-                            return null;
-                        }
-                        STree rightTree = ParseSTree(input.Substring(subExpStart, subExpLength));
-                        leftTree = new STree(leftTree, rightTree);
-                    }
-                    idx += 1;
-                } else {
-                    Parser.SExprParseError(input, idx);
-                    return null;
-                }
-
-
-            }
-
-            return leftTree;
-        }
-
-
-
-
-
         private static void SExprParseError(string input, int idx) {
             Console.WriteLine("ERROR parsing S-Expression -- could not parse symbol: ");
             GeneralParseError(input, idx);
