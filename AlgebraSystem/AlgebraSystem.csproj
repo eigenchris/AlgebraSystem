@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataStructures\MultiKeyDictionary.cs" />
     <Compile Include="TermNew.cs" />
     <Compile Include="TreeTransformationFactory.cs" />
     <Compile Include="Types\Inference.cs" />
