@@ -176,9 +176,6 @@ namespace UnitTestProject1 {
             Assert.IsTrue(T5A.DeepEquals(T5B));
             Assert.IsTrue(T6A.DeepEquals(T6B));
             Assert.IsTrue(T7A.DeepEquals(T7B));
-        }
-
-
-
+        }        
     }
 }

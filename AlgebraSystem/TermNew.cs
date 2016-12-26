@@ -220,6 +220,9 @@ namespace AlgebraSystem {
             return variableTypes;
         }
 
+        // Gets a list of key-value pairs of symbols to type trees
+        // Since there can be duplicate polymorphic functions, (as in cmp cmp cmp) we allow duplicates of the sam key,
+        //  as long as the values have different type trees
         public static void GetVarTypesRecur(SExpression sexp, Namespace ns, Dictionary<string, TypeTree> variableTypes, List<string> introducedTypeVars) {
             if (!sexp.IsLeaf()) {
                 GetVarTypesRecur(sexp.right, ns, variableTypes, introducedTypeVars);

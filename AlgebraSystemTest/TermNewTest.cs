@@ -104,5 +104,19 @@ namespace UnitTestProject1 {
             Assert.IsTrue(t.typeTree.IsLeaf());
             Assert.AreEqual(t.typeTree.value, "Bool");
         }
+
+        //[TestMethod]
+        public void TermNewTest_Challenge() {
+            // Arrange
+            var gns = Namespace.CreateGlobalNs();
+            string s = "cmp cmp cmp";
+
+            // Act
+            var t = TermNew.TermFromSExpression(s, gns);
+
+            // Assert
+            // Haskell type: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
+            System.Console.WriteLine(t);
+        }
     }
 }
